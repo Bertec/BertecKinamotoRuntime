@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 09c3d2a569879d44f879d1be5695fbbd
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: D-DIN Exp
+  fontNames:
+  - D-DIN Exp
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: f7275dccb42a3f0438f5c2ca0cf1ed38, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

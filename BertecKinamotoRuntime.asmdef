@@ -1,0 +1,27 @@
+{
+    "name": "Bertec",
+    "rootNamespace": "",
+    "references": [
+        "Unity.XR.PICO",
+        "Unity.XR.PICO.Editor",
+        "Unity.XR.Management",
+        "Unity.XR.Management.Editor",
+        "Unity.XR.CoreUtils",
+        "Unity.InputSystem",
+        "PICO.Platform",
+        "PICO.Platform.Editor",
+        "PICO.TobSupport",
+        "Unity.Postprocessing.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [
+        "Newtonsoft.Json.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
