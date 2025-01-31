@@ -33,7 +33,7 @@ NOT INSTALL OR USE THE SOFTWARE.
 
 /*
 
-- Copyright 2024 Bertec Corporation.
+- Copyright 2025 Bertec Corporation.
 - All rights reserved.
 -
 - This code is licensed under the Bertec Corporation License Agreement.
