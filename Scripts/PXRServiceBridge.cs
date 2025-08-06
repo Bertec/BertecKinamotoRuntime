@@ -4,7 +4,6 @@
 
 #if UNITY_ANDROID
 
-using System;
 using System.Threading;
 using UnityEngine;
 
@@ -14,21 +13,17 @@ using SystemInfoEnum = Unity.XR.PICO.TOBSupport.SystemInfoEnum;
 using SystemFunctionSwitchEnum = Unity.XR.PICO.TOBSupport.SystemFunctionSwitchEnum;
 using SwitchEnum = Unity.XR.PICO.TOBSupport.SwitchEnum;
 
-[assembly: UnityEngine.Scripting.AlwaysLinkAssembly]
-
-
-namespace Bertec
+namespace BertecHMD
 {
-	public class PXRServiceBridge
+	internal class PXRServiceBridge
 	{
 		internal static bool bridgeConnected = false;
 
 		internal static bool initilized = false;
 
-		// The static init must be marked as PXRServiceBridgeInit otherwise the framework will fail to properly connect up the PICO SDK
-		[PXRServiceBridgeInit]
-		public static void Init()
+		internal static void Init()
 		{
+			Debug.Log("HMD PXRServiceBridge.Init");
 			if (initilized)
 				return;
 			initilized = true;
@@ -71,7 +66,7 @@ namespace Bertec
 
 				// Keep this app active so the system won't force-quit the app even if it's in the background (which happens around 10 minutes
 				// when the headset is on battery).
-				PXR_System.AppKeepAlive(DeviceInformation.ApplicationPackageName, true, 0);
+				PXR_System.AppKeepAlive(Bertec.DeviceInformation.ApplicationPackageName, true, 0);
 
 				// Keep the wifi on even when the headset is asleep (which should allow the main program to always connect)
 				PXR_System.SwitchSystemFunction(SystemFunctionSwitchEnum.SFS_POWER_CTRL_WIFI_ENABLE, SwitchEnum.S_ON);
@@ -120,68 +115,22 @@ namespace Bertec
 
 				Bertec.DeviceInformation.UpdateDeviceSerialSdk(serialNumber, deviceName, APIversion, SDKversion, firmwareVersion);
 
+				Bertec.SystemAudioDeviceManager.managerInterface = new SystemAudioDeviceManagerImpl();
+
 			}
 			catch (System.Exception ex)
 			{
 				Debug.LogError("PXRServiceBridge.Init exception: " + ex.ToString());
 			}
 
-			// Connect the passthrough handlers
-			PassThroughViewMoniter.OnBrightness += (level) =>
-			{
-				SetScreenBrightnessLevel(level);
-			};
 
-			PassThroughViewMoniter.GetScreenBrightness = (out PassThroughViewMoniter.BrightnessLevelInfo levels) =>
-			{
-				levels = GetScreenBrightnessLevel();
-			};
+		
 
-			PassThroughViewMoniter.OnScreenOnOff += (screenon) =>
-			{
-				if (screenon)
-					PXR_System.ScreenOn();
-				else
-					PXR_System.ScreenOff();
-			};
-
-			PassThroughViewMoniter.OnAudioVolume += (level) =>
-			{
-				SetAudioVolume(level);
-			};
-
-			PassThroughViewMoniter.GetAudioVolumeInfo = (out PassThroughViewMoniter.AudioVolumeInfo levels) =>
-			{
-				levels = GetAudioVolumeInfo();
-			};
+	
 		}
 
-		private static void SetScreenBrightnessLevel(int levelIndex)
-		{
-			Unity.XR.PXR.PXR_System.SetScreenBrightnessLevel(0, levelIndex);
-		}
 
-		private static PassThroughViewMoniter.BrightnessLevelInfo GetScreenBrightnessLevel()
-		{
-			return new PassThroughViewMoniter.BrightnessLevelInfo()
-			{
-				Level = Unity.XR.PXR.PXR_System.GetCommonBrightness()
-			};
-		}
-
-		private static void SetAudioVolume(int levelIndex)
-		{
-			Unity.XR.PXR.PXR_System.SetVolumeNum(levelIndex);
-		}
-
-		private static PassThroughViewMoniter.AudioVolumeInfo GetAudioVolumeInfo()
-		{
-			// The default values for the min/max are always constant
-			return new PassThroughViewMoniter.AudioVolumeInfo()
-			{
-				Level = Unity.XR.PXR.PXR_System.GetCurrentVolumeNumber()
-			};
-		}
+	
 
 	}
 

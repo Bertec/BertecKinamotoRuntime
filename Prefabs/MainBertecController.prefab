@@ -74,7 +74,7 @@ GameObject:
   - component: {fileID: 1249009222900104337}
   - component: {fileID: 1249009222900104339}
   - component: {fileID: 1249009222900104343}
-  - component: {fileID: 1249009222900104336}
+  - component: {fileID: -955939257526250238}
   m_Layer: 0
   m_Name: MainBertecController
   m_TagString: Untagged
@@ -124,8 +124,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mainCamera: {fileID: 2416378842497099339}
+  _mainContainer: {fileID: 0}
   picoPVR: {fileID: 2416378841715699368}
---- !u!114 &1249009222900104336
+--- !u!114 &-955939257526250238
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -134,11 +135,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1249009222900104340}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d047fcc68bc970f40b0280cc1102f3b3, type: 3}
+  m_Script: {fileID: 11500000, guid: 1e99e69ffbda8c24d8ce591466bbad8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Scene: {fileID: 0}
+  XRRigMainCamera: {fileID: 0}
   AllowControlerButtonBypass: 1
+  DomeIdleImage: {fileID: 0}
 --- !u!1 &8844963876308033042
 GameObject:
   m_ObjectHideFlags: 0

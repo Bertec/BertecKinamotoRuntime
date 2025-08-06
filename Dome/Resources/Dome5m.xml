@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OmnityInfo>
+	<KeepUpdatingFinalPassCameras>True</KeepUpdatingFinalPassCameras>
+	<KeepUpdatingScreen>False</KeepUpdatingScreen>
+	<KeepUpdatingShaders>True</KeepUpdatingShaders>
+	<KeepUpdatingCameraArray>True</KeepUpdatingCameraArray>
+	<enableTiltWithBracketKeys>True</enableTiltWithBracketKeys>
+	<isGlobe>False</isGlobe>
+	<tilt>13</tilt>
+	<yaw>0</yaw>
+	<roll>0</roll>
+	<windowInfo>
+		<GUIViewportPositionHint>(x:0, y:0, width:1, height:1)</GUIViewportPositionHint>
+		<GUIViewportScaleHint>1</GUIViewportScaleHint>
+		<fullscreenInfo>
+			<applyOnLoad>False</applyOnLoad>
+			<goalWindowPosAndRes>(x:0, y:0, width:1024, height:768)</goalWindowPosAndRes>
+			<goalRefreshRate>0</goalRefreshRate>
+			<fullScreenMode>ApplicationDefault</fullScreenMode>
+		</fullscreenInfo>
+		<omnityGUIScale>1</omnityGUIScale>
+	</windowInfo>
+	<disableOmnity>False</disableOmnity>
+	<CameraArrayGUIExpanded>True</CameraArrayGUIExpanded>
+	<ScreenShapesGUIExpanded>True</ScreenShapesGUIExpanded>
+	<FinalPassCamerasGUIExpanded>True</FinalPassCamerasGUIExpanded>
+	<PerspectiveCamera>
+		<name>Top</name>
+		<localEulerAngles>(270.0000, 0.0000, 0.0000)</localEulerAngles>
+		<localPosition>(0.0000, -0.4000, 0.0000)</localPosition>
+		<fovL>45.0050</fovL>
+		<fovR>45.0050</fovR>
+		<fovT>45.0050</fovT>
+		<fovB>45.0050</fovB>
+		<near>0.1000</near>
+		<far>650.0000</far>
+		<nearOrtho>-1.0000</nearOrtho>
+		<farOrtho>1.0000</farOrtho>
+		<matrixMode>Default</matrixMode>
+		<orthographicSize>0.5</orthographicSize>
+		<FlipHorizontal>False</FlipHorizontal>
+		<preRotation>(0.0000, 0.0000, 0.0000)</preRotation>
+		<cullingMask>1073741823</cullingMask>
+		<guiExpanded>False</guiExpanded>
+		<automaticallyConnectTextures>True</automaticallyConnectTextures>
+		<followTilt>True</followTilt>
+		<targetEyeHint>Both</targetEyeHint>
+		<layer>30</layer>
+		<RenderTextureSettings>
+			<enabled>True</enabled>
+			<stereoPair>False</stereoPair>
+			<width>2048</width>
+			<height>2048</height>
+			<mipmap>True</mipmap>
+			<antiAliasing>AASampleCount_1</antiAliasing>
+			<depth>24</depth>
+			<anisoLevel>2</anisoLevel>
+			<mipMapBias>-0.5</mipMapBias>
+			<myRenderTextureFormat>Default</myRenderTextureFormat>
+			<wrapMode>Clamp</wrapMode>
+			<filterMode>Trilinear</filterMode>
+			<guiExpanded>True</guiExpanded>
+		</RenderTextureSettings>
+		<PostProcessOptions>
+			<type>ByLayerIndicies</type>
+			<layerMaskInt>256</layerMaskInt>
+			<antialiasingOptions>None</antialiasingOptions>
+			<commaSeperatedLayerNames>FinalPass, FinalPassAlt</commaSeperatedLayerNames>
+		</PostProcessOptions>
+	</PerspectiveCamera>
+	<PerspectiveCamera>
+		<name>Right</name>
+		<localEulerAngles>(0.0000, 90.0000, 0.0000)</localEulerAngles>
+		<localPosition>(0.0000, -0.4000, 0.0000)</localPosition>
+		<fovL>45.0050</fovL>
+		<fovR>45.0050</fovR>
+		<fovT>45.0050</fovT>
+		<fovB>45.0050</fovB>
+		<near>0.5000</near>
+		<far>650.0000</far>
+		<nearOrtho>-1.0000</nearOrtho>
+		<farOrtho>1.0000</farOrtho>
+		<matrixMode>Default</matrixMode>
+		<orthographicSize>0.5</orthographicSize>
+		<FlipHorizontal>False</FlipHorizontal>
+		<preRotation>(0.0000, 0.0000, 0.0000)</preRotation>
+		<cullingMask>1073741823</cullingMask>
+		<guiExpanded>False</guiExpanded>
+		<automaticallyConnectTextures>True</automaticallyConnectTextures>
+		<followTilt>True</followTilt>
+		<targetEyeHint>Both</targetEyeHint>
+		<layer>0</layer>
+		<RenderTextureSettings>
+			<enabled>True</enabled>
+			<stereoPair>False</stereoPair>
+			<width>2048</width>
+			<height>2048</height>
+			<mipmap>True</mipmap>
+			<antiAliasing>AASampleCount_1</antiAliasing>
+			<depth>24</depth>
+			<anisoLevel>2</anisoLevel>
+			<mipMapBias>-0.5</mipMapBias>
+			<myRenderTextureFormat>Default</myRenderTextureFormat>
+			<wrapMode>Clamp</wrapMode>
+			<filterMode>Trilinear</filterMode>
+			<guiExpanded>True</guiExpanded>
+		</RenderTextureSettings>
+		<PostProcessOptions>
+			<type>ByLayerIndicies</type>
+			<layerMaskInt>256</layerMaskInt>
+			<antialiasingOptions>None</antialiasingOptions>
+			<commaSeperatedLayerNames>FinalPass, FinalPassAlt</commaSeperatedLayerNames>
+		</PostProcessOptions>
+	</PerspectiveCamera>
+	<PerspectiveCamera>
+		<name>Left</name>
+		<localEulerAngles>(0.0000, 270.0000, 0.0000)</localEulerAngles>
+		<localPosition>(0.0000, -0.4000, 0.0000)</localPosition>
+		<fovL>45.0050</fovL>
+		<fovR>45.0050</fovR>
+		<fovT>45.0050</fovT>
+		<fovB>45.0050</fovB>
+		<near>0.5000</near>
+		<far>650.0000</far>
+		<nearOrtho>-1.0000</nearOrtho>
+		<farOrtho>1.0000</farOrtho>
+		<matrixMode>Default</matrixMode>
+		<orthographicSize>0.5</orthographicSize>
+		<FlipHorizontal>False</FlipHorizontal>
+		<preRotation>(0.0000, 0.0000, 0.0000)</preRotation>
+		<cullingMask>1073741823</cullingMask>
+		<guiExpanded>False</guiExpanded>
+		<automaticallyConnectTextures>True</automaticallyConnectTextures>
+		<followTilt>True</followTilt>
+		<targetEyeHint>Both</targetEyeHint>
+		<layer>0</layer>
+		<RenderTextureSettings>
+			<enabled>True</enabled>
+			<stereoPair>False</stereoPair>
+			<width>2048</width>
+			<height>2048</height>
+			<mipmap>True</mipmap>
+			<antiAliasing>AASampleCount_1</antiAliasing>
+			<depth>24</depth>
+			<anisoLevel>2</anisoLevel>
+			<mipMapBias>-0.5</mipMapBias>
+			<myRenderTextureFormat>Default</myRenderTextureFormat>
+			<wrapMode>Clamp</wrapMode>
+			<filterMode>Trilinear</filterMode>
+			<guiExpanded>True</guiExpanded>
+		</RenderTextureSettings>
+		<PostProcessOptions>
+			<type>ByLayerIndicies</type>
+			<layerMaskInt>256</layerMaskInt>
+			<antialiasingOptions>None</antialiasingOptions>
+			<commaSeperatedLayerNames>FinalPass, FinalPassAlt</commaSeperatedLayerNames>
+		</PostProcessOptions>
+	</PerspectiveCamera>
+	<PerspectiveCamera>
+		<name>Ground</name>
+		<localEulerAngles>(90.0000, 0.0000, 0.0000)</localEulerAngles>
+		<localPosition>(0.0000, -0.4000, 0.0000)</localPosition>
+		<fovL>45.0050</fovL>
+		<fovR>45.0050</fovR>
+		<fovT>45.0050</fovT>
+		<fovB>45.0050</fovB>
+		<near>0.5000</near>
+		<far>650.0000</far>
+		<nearOrtho>-1.0000</nearOrtho>
+		<farOrtho>1.0000</farOrtho>
+		<matrixMode>Default</matrixMode>
+		<orthographicSize>0.5</orthographicSize>
+		<FlipHorizontal>False</FlipHorizontal>
+		<preRotation>(0.0000, 0.0000, 0.0000)</preRotation>
+		<cullingMask>1073741823</cullingMask>
+		<guiExpanded>False</guiExpanded>
+		<automaticallyConnectTextures>True</automaticallyConnectTextures>
+		<followTilt>True</followTilt>
+		<targetEyeHint>Both</targetEyeHint>
+		<layer>0</layer>
+		<RenderTextureSettings>
+			<enabled>True</enabled>
+			<stereoPair>False</stereoPair>
+			<width>2048</width>
+			<height>2048</height>
+			<mipmap>True</mipmap>
+			<antiAliasing>AASampleCount_1</antiAliasing>
+			<depth>24</depth>
+			<anisoLevel>2</anisoLevel>
+			<mipMapBias>-0.5</mipMapBias>
+			<myRenderTextureFormat>Default</myRenderTextureFormat>
+			<wrapMode>Clamp</wrapMode>
+			<filterMode>Trilinear</filterMode>
+			<guiExpanded>True</guiExpanded>
+		</RenderTextureSettings>
+		<PostProcessOptions>
+			<type>ByLayerIndicies</type>
+			<layerMaskInt>256</layerMaskInt>
+			<antialiasingOptions>None</antialiasingOptions>
+			<commaSeperatedLayerNames>FinalPass, FinalPassAlt</commaSeperatedLayerNames>
+		</PostProcessOptions>
+	</PerspectiveCamera>
+	<PerspectiveCamera>
+		<name>Front</name>
+		<localEulerAngles>(0.0000, 0.0000, 0.0000)</localEulerAngles>
+		<localPosition>(0.0000, -0.4000, 0.0000)</localPosition>
+		<fovL>45.0050</fovL>
+		<fovR>45.0050</fovR>
+		<fovT>45.0050</fovT>
+		<fovB>45.0050</fovB>
+		<near>0.5000</near>
+		<far>650.0000</far>
+		<nearOrtho>-1.0000</nearOrtho>
+		<farOrtho>1.0000</farOrtho>
+		<matrixMode>Default</matrixMode>
+		<orthographicSize>0.5</orthographicSize>
+		<FlipHorizontal>False</FlipHorizontal>
+		<preRotation>(0.0000, 0.0000, 0.0000)</preRotation>
+		<cullingMask>1073741823</cullingMask>
+		<guiExpanded>False</guiExpanded>
+		<automaticallyConnectTextures>True</automaticallyConnectTextures>
+		<followTilt>True</followTilt>
+		<targetEyeHint>Both</targetEyeHint>
+		<layer>0</layer>
+		<RenderTextureSettings>
+			<enabled>True</enabled>
+			<stereoPair>False</stereoPair>
+			<width>2048</width>
+			<height>2048</height>
+			<mipmap>True</mipmap>
+			<antiAliasing>AASampleCount_1</antiAliasing>
+			<depth>24</depth>
+			<anisoLevel>2</anisoLevel>
+			<mipMapBias>-0.5</mipMapBias>
+			<myRenderTextureFormat>Default</myRenderTextureFormat>
+			<wrapMode>Clamp</wrapMode>
+			<filterMode>Trilinear</filterMode>
+			<guiExpanded>True</guiExpanded>
+		</RenderTextureSettings>
+		<PostProcessOptions>
+			<type>ByLayerIndicies</type>
+			<layerMaskInt>256</layerMaskInt>
+			<antialiasingOptions>None</antialiasingOptions>
+			<commaSeperatedLayerNames>FinalPass, FinalPassAlt</commaSeperatedLayerNames>
+		</PostProcessOptions>
+	</PerspectiveCamera>
+	<ScreenShape>
+		<name>Screen</name>
+		<scale>(1.0000, 1.0000, 1.0000)</scale>
+		<offset>(0.0000, 0.2800, 0.8600)</offset>
+		<localEulerAngles>(181.0000, 0.0000, 0.0000)</localEulerAngles>
+		<layer>30</layer>
+		<meshFileName>Dome5mv2</meshFileName>
+		<shaderFileName>Elumenati/Omnity/FinalPass4/Compiled</shaderFileName>
+		<guiExpanded>True</guiExpanded>
+		<startEnabled>True</startEnabled>
+		<automaticallyConnectTextures>True</automaticallyConnectTextures>
+		<bitMaskConnectedCameras>0</bitMaskConnectedCameras>
+		<screenShapeType>Custom</screenShapeType>
+		<finalPassShaderType>Omnity6Channel</finalPassShaderType>
+		<finalPassShaderMultiSample>OMNIMAP_MULTISAMPLE_OFF</finalPassShaderMultiSample>
+		<followTilt>True</followTilt>
+		<eyeTarget>Both</eyeTarget>
+		<cameraSource>Omnity</cameraSource>
+		<SphereParams>
+			<radius>1</radius>
+			<thetaStart>-180</thetaStart>
+			<thetaEnd>180</thetaEnd>
+			<phiStart>0</phiStart>
+			<phiEnd>90</phiEnd>
+			<slices>85</slices>
+			<stacks>85</stacks>
+			<invert>False</invert>
+			<internalSurface>True</internalSurface>
+			<destroyOnLoad>True</destroyOnLoad>
+		</SphereParams>
+		<CylinderParams>
+			<cylinderRadius>1</cylinderRadius>
+			<cylinderThetaStart>-180</cylinderThetaStart>
+			<cylinderThetaEnd>180</cylinderThetaEnd>
+			<cylinderYTop>1</cylinderYTop>
+			<cylinderYBottom>-1</cylinderYBottom>
+			<cylinderSlices>60</cylinderSlices>
+			<cylinderStacks>60</cylinderStacks>
+			<cylinderInvert>False</cylinderInvert>
+			<cylinderInternalSurface>True</cylinderInternalSurface>
+			<cylinderDestroyOnLoad>True</cylinderDestroyOnLoad>
+		</CylinderParams>
+		<CubeParams>
+			<cubeSlices>60</cubeSlices>
+			<cubeStacks>60</cubeStacks>
+			<cubeInternalSurface>True</cubeInternalSurface>
+			<cubeDestroyOnLoad>True</cubeDestroyOnLoad>
+			<drawNorth>True</drawNorth>
+			<drawSouth>True</drawSouth>
+			<drawEast>True</drawEast>
+			<drawWest>True</drawWest>
+			<drawFloor>True</drawFloor>
+			<drawCeiling>True</drawCeiling>
+		</CubeParams>
+		<PlaneParams>
+			<left>-0.5</left>
+			<right>0.5</right>
+			<top>0.5</top>
+			<bottom>-0.5</bottom>
+			<slices>85</slices>
+			<stacks>85</stacks>
+			<simpleplane>True</simpleplane>
+			<destroyOnLoad>True</destroyOnLoad>
+		</PlaneParams>
+	</ScreenShape>
+	<FinalPassCamera>
+		<name>Final Pass Camera</name>
+		<position>(0.0000, 1.7800, 0.0000)</position>
+		<localEulerAngles>(90.0000, 0.0000, 0.0000)</localEulerAngles>
+		<scale>1.0000</scale>
+		<normalizedLensOffset>True</normalizedLensOffset>
+		<lensOffsetY>1.0000</lensOffsetY>
+		<lensScaleX>1.0000</lensScaleX>
+		<lensScaleY>1.0000</lensScaleY>
+		<GUIViewportScaleHint>1.0000</GUIViewportScaleHint>
+		<projectorType>FisheyeTruncated</projectorType>
+		<fovL>45.0050</fovL>
+		<fovR>45.0050</fovR>
+		<fovT>45.0050</fovT>
+		<fovB>45.0050</fovB>
+		<near>0.1000</near>
+		<far>2000.0000</far>
+		<nearOrtho>-1.0000</nearOrtho>
+		<farOrtho>1.0000</farOrtho>
+		<matrixMode>Default</matrixMode>
+		<orthographicSize>0.5</orthographicSize>
+		<FlipHorizontal>False</FlipHorizontal>
+		<preRotation>(0.0000, 0.0000, 0.0000)</preRotation>
+		<startEnabled>True</startEnabled>
+		<normalizedViewportRect>(x:0, y:0, width:1, height:1)</normalizedViewportRect>
+		<backgroundColor>RGBA(0.0000, 0.0000, 0.0000, 1.0000)</backgroundColor>
+		<clearFlags>SolidColor</clearFlags>
+		<cullingMask>1073741824</cullingMask>
+		<layer>0</layer>
+		<guiExpanded>True</guiExpanded>
+		<followTilt >True</followTilt >
+		<guiType>appDefault</guiType>
+		<displayTarget>0</displayTarget>
+		<displayTargetApply>False</displayTargetApply>
+		<targetEyeHint>None</targetEyeHint>
+		<RenderTextureSettings>
+			<enabled>False</enabled>
+			<stereoPair>False</stereoPair>
+			<width>2048</width>
+			<height>2048</height>
+			<mipmap>True</mipmap>
+			<antiAliasing>AASampleCount_1</antiAliasing>
+			<depth>24</depth>
+			<anisoLevel>2</anisoLevel>
+			<mipMapBias>0</mipMapBias>
+			<myRenderTextureFormat>Default</myRenderTextureFormat>
+			<wrapMode>Clamp</wrapMode>
+			<filterMode>Trilinear</filterMode>
+			<guiExpanded>True</guiExpanded>
+		</RenderTextureSettings>
+		<PostProcessOptions>
+			<type>ByLayerIndicies</type>
+			<layerMaskInt>256</layerMaskInt>
+			<antialiasingOptions>None</antialiasingOptions>
+			<commaSeperatedLayerNames>FinalPass, FinalPassAlt</commaSeperatedLayerNames>
+		</PostProcessOptions>
+	</FinalPassCamera>
+	<pluginIDs>100000,100010</pluginIDs>
+</OmnityInfo>
