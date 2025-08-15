@@ -58,7 +58,7 @@ namespace Bertec
 			Init();
 		}
 
-		public void Init()
+		private void Init()
 		{
 			if (eventHandler == null && !isDestroyed)
 			{
@@ -67,7 +67,7 @@ namespace Bertec
 			}
 		}
 
-		public void Shutdown()
+		private void Shutdown()
 		{
 			if (eventHandler != null)
 			{

@@ -2,6 +2,9 @@
 
 namespace Bertec
 {
+	/// <summary>
+	/// MonoBehaviour that manages the main camera and its container, handling initialization and background color changes.
+	/// </summary>
 	public class CameraContainer : MonoBehaviour
 	{
 		// The reason behind this message is that the 'Camera' object with Omnity.cs attached to it should appear BEFORE the XR Rig object - because both have a Main Camera!
@@ -11,6 +14,7 @@ namespace Bertec
 		[Tooltip("Defaults to gameobject this script is on")]
 		public GameObject _mainContainer = null;
 
+		[Tooltip("If using Pico PVR, set this to the PicoPVR object in the scene; ignored in Windows")]
 		public GameObject picoPVR = null;
 
 		[HideInInspector]
@@ -51,7 +55,7 @@ namespace Bertec
 				Bertec.CameraDisplayModeStatus.Mode = Bertec.CameraDisplayModeStatus.ModeType.FlatPanel;
 #endif
 
-			_impl = new CameraContainer_Impl(this, _mainCamera, _mainContainer, picoPVR);
+			_impl = new CameraContainer_Impl(this, _mainCamera, _mainContainer);
 		}
 
 		public void Start()
@@ -66,6 +70,11 @@ namespace Bertec
 			_impl.OnDestroy();
 		}
 
+		/// <summary>
+		/// Changes the background color of the main camera.
+		/// </summary>
+		/// <param name="color">The new background color.</param>
+		/// <param name="revertClearFlagsToSkybox">If true, reverts the camera's clear flags to Skybox; otherwise, uses Color.</param>
 		static public void ChangeCameraBackgroundColor(Color color, bool revertClearFlagsToSkybox = false)
 		{
 			_instance?._impl?.ChangeCameraBackgroundColor(color, revertClearFlagsToSkybox);

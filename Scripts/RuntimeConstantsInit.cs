@@ -1,8 +1,13 @@
 namespace Bertec
 {
-
+	/// <summary>
+	/// Initializes runtime constants for platform and build configuration detection.
+	/// </summary>
 	public static class RuntimeConstantsInit
 	{
+		/// <summary>
+		/// Initializes the <see cref="RuntimeConstants"/> values based on the current build platform and scripting backend.
+		/// </summary>
 		[FrameworkInit(FrameworkInitType.RegisterObjectStructs), FrameworkInit(FrameworkInitType.PrebuildExec)]
 		public static void Init()
 		{

@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Bertec
 {
+	/// <summary>
+	/// Manages passthrough view state, including hiding/showing the main scene and handling passthrough camera logic.
+	/// </summary>
 	public class PassThroughViewContainer : MonoBehaviour
 	{
 		/// <summary>

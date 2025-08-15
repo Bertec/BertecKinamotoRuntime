@@ -5,6 +5,10 @@ using UnityEngine.Rendering.PostProcessing;
 
 namespace Bertec
 {
+	/// <summary>
+	/// Handles post-processing effects (vignette, film grain) for the main camera using a PostProcessProfile.
+	/// Listens for protocol events to update effect levels and disables effects during passthrough/idle mode.
+	/// </summary>
 	public class PostProcessingEffects : MonoBehaviour
 	{
 		public PostProcessProfile postProcessProfile;
@@ -29,7 +33,6 @@ namespace Bertec
 		}
 
 		/// <summary>
-		/// Fix for IL-2110
 		/// When passthrough/idle mode is activated, all post-processing effects should be disabled.
 		/// vice-versa, when exiting passthrough/idle mode, all post-processing effects should be enabled.
 		/// This makes sure that the post-processing effects are not applied when the passthrough/idle mode is enabled.
@@ -49,6 +52,10 @@ namespace Bertec
 			});
 		}
 
+		/// <summary>
+		/// Handles protocol events to update post-processing effect levels.
+		/// </summary>
+		/// <param name="data"><see cref="PostProcessingEffectData"/> The effect and level to apply.</param>
 		private void PostProcessingEffectChanged(PostProcessingEffectData data)
 		{
 			// If in Idle/Passthrough mode, do not apply the post-processing effects.
@@ -73,6 +80,10 @@ namespace Bertec
 			}
 		}
 
+		/// <summary>
+		/// Sets the vignette effect intensity preset.
+		/// </summary>
+		/// <param name="presetIndex">The preset index (0 = off, 1-4 = increasing intensity).</param>
 		private void SetVignetteIntensity(int presetIndex)
 		{
 			// If in Idle/Passthrough mode, do not apply the vignette effect.
@@ -106,6 +117,10 @@ namespace Bertec
 			}
 		}
 
+		/// <summary>
+		/// Sets the film grain effect level preset.
+		/// </summary>
+		/// <param name="presetIndex">The preset index (0 = off, 1-4 = increasing intensity/size).</param>
 		private void SetFilmGrainLevel(int presetIndex)
 		{
 			// If in Idle/Passthrough mode, do not apply the film grain effect.
@@ -146,20 +161,29 @@ namespace Bertec
 			}
 		}
 
-	
+
 
 	}
 
 	///////////////////////////////////////////////////
-	// Helper class used by dynamic visual systems to enable/disable/add post-processing effects on the main or subset cameras
+	/// <summary>
+	/// Helper class used by dynamic visual systems to enable/disable/add post-processing effects on the main or subset cameras.
+	/// </summary>
 	public class PostProcessingLayerHelper_Impl : Bertec.IPostProcessingLayerHelper
 	{
+		// Registers this implementation as the post-processing layer helper for the framework.
 		[FrameworkInit(FrameworkInitType.RegisterObjectStructs), FrameworkInit(FrameworkInitType.PrebuildExec)]
 		public static void Init()
 		{
 			Bertec.PostProcessingLayerHelper.Instance = new PostProcessingLayerHelper_Impl();
 		}
 
+		/// <summary>
+		/// Enables or disables the post-processing layer on the specified camera.
+		/// </summary>
+		/// <param name="mainCamera">The camera to modify.</param>
+		/// <param name="enabled">True to enable, false to disable.</param>
+		/// <returns>True if the operation succeeded, otherwise false.</returns>
 		public bool EnablePostProcessLayer(Camera mainCamera, bool enabled)
 		{
 			if (mainCamera != null)
@@ -174,6 +198,13 @@ namespace Bertec
 			return false;
 		}
 
+		/// <summary>
+		/// Adds a post-processing layer to the specified camera object and copies settings from the main camera.
+		/// </summary>
+		/// <param name="mainCamera">The source camera to copy settings from.</param>
+		/// <param name="cameraObject">The GameObject to add the layer to.</param>
+		/// <param name="cameraTransform">The transform to use as the volume trigger.</param>
+		/// <returns>An enumerator for coroutine support.</returns>
 		public IEnumerator AddPostProcessLayer(Camera mainCamera, GameObject cameraObject, Transform cameraTransform)
 		{
 			PostProcessLayer domePostProcessLayer = cameraObject.AddComponent<PostProcessLayer>();
@@ -184,6 +215,11 @@ namespace Bertec
 			domePostProcessLayer.enabled = true;
 		}
 
+		/// <summary>
+		/// Copies all field values from one PostProcessLayer to another.
+		/// </summary>
+		/// <param name="sourceComp">The source PostProcessLayer.</param>
+		/// <param name="targetComp">The target PostProcessLayer.</param>
 		internal static void CopyClassValues(PostProcessLayer sourceComp, PostProcessLayer targetComp)
 		{
 			FieldInfo[] sourceFields = sourceComp.GetType().GetFields(BindingFlags.Public |

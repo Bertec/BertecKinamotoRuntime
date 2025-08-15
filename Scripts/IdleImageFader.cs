@@ -1,7 +1,9 @@
+// This is used by the DomeIdleImage.prefab/Panel object
 using UnityEngine;
 
-// This is used by the DomeIdleImage.prefab/Panel object
-
+/// <summary>
+/// Fades the alpha of a UI Image component when enabled, used by the DomeIdleImage.prefab/Panel object.
+/// </summary>
 public class IdleImageFader : MonoBehaviour
 {
 	private UnityEngine.UI.Image _idleImage;
@@ -24,6 +26,13 @@ public class IdleImageFader : MonoBehaviour
 		Bertec.Utils.Coroutines.Start(FadeAlpha(_idleImage, 1f, 0.25f));
 	}
 
+	/// <summary>
+	/// Coroutine to fade the alpha of a UI Image to a target value over a duration.
+	/// </summary>
+	/// <param name="_image">The Image to fade.</param>
+	/// <param name="targetAlpha">The target alpha value.</param>
+	/// <param name="duration">The duration of the fade in seconds.</param>
+	/// <returns>An IEnumerator for coroutine execution.</returns>
 	private System.Collections.IEnumerator FadeAlpha(UnityEngine.UI.Image _image, float targetAlpha, float duration)
 	{
 		if (_image != null)

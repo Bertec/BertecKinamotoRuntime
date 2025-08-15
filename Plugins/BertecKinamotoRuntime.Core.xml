@@ -4,44 +4,401 @@
     <name>BertecKinamotoRuntime.Core</name>
   </assembly>
   <members>
-    <member name="P:Bertec.IDomeProjectionProvider.IsOmnityAvailable">
+    <member name="T:Bertec.BuildServicesInterface">
       <summary>
-            Check if the Omnity is available. This will return true for Dome projection mode.
+            Interface for build service operations such as building projects, setting bundle versions, and generating scene info.
             </summary>
     </member>
-    <member name="M:Bertec.IDomeProjectionProvider.ChangeCameraBackgroundColor(UnityEngine.Color,System.Boolean)">
+    <member name="M:Bertec.BuildServicesInterface.BuildProject(System.String[],System.String,System.String,System.String)">
       <summary>
-            Change the background color for Omnity setup. This requires camera array cameras to be indivudally updated.
+            Builds the project with the specified scenes and output parameters.
             </summary>
-      <param name="color">
-      </param>
-      <param name="revertClearFlagsToSkybox">
-      </param>
+      <param name="scenes">Array of scene paths to include in the build.</param>
+      <param name="outputFolder">The output folder for the build artifacts.</param>
+      <param name="outputName">The output file name.</param>
+      <param name="outputPackageName">The output package name.</param>
+      <returns>True if the build succeeded, otherwise false.</returns>
     </member>
-    <member name="M:Bertec.IDomeProjectionProvider.FadeInDomeFader(System.Action)">
+    <member name="M:Bertec.BuildServicesInterface.SetPlayerBundleVersionFromBuldnum">
       <summary>
-            This will start the fade in of the fader quad that will obscure the view
+            Sets the player bundle version from the build number.
             </summary>
-      <param name="action">
-      </param>
-      <returns>If necessary, the integer returned can be used to check the coroutine state through BetterCoroutines</returns>
     </member>
-    <member name="M:Bertec.IDomeProjectionProvider.FadeOutDomeFader(System.Boolean)">
+    <member name="M:Bertec.BuildServicesInterface.GenerateSceneInfoJson">
       <summary>
-            This will start the fade out of the fader quad that will reveal the view
+            Generates a JSON file containing scene information.
             </summary>
-      <param name="startFromFull">For specific cases, we want the fade out to play consistently, so the alpha should start from 1</param>
-      <returns>If necessary, the integer returned can be used to check the coroutine state through BetterCoroutines</returns>
+    </member>
+    <member name="M:Bertec.BuildServicesInterface.MakeGenerated(System.String)">
+      <summary>
+            Generates required files in the specified main project assets folder.
+            </summary>
+      <param name="mainProjectAssets">The main project assets folder path.</param>
+    </member>
+    <member name="T:Bertec.BuildServices">
+      <summary>
+            Provides static methods and properties for build services, including project building and scene info generation.
+            </summary>
+    </member>
+    <member name="T:Bertec.BuildServices._BuildType">
+      <summary>
+            Types of build supported by the build services.
+            </summary>
+    </member>
+    <member name="F:Bertec.BuildServices._BuildType.CustomerScene">
+      <summary>
+            Customer scene build type.
+            </summary>
+    </member>
+    <member name="F:Bertec.BuildServices.BuildOutputFolder">
+      <summary>
+            The output folder for the build artifacts (e.g., exe, dll).
+            </summary>
+    </member>
+    <member name="F:Bertec.BuildServices.BuildOutputFile">
+      <summary>
+            The output file for the build (e.g., .apk or .wpk file). Blank if building loader.
+            </summary>
+    </member>
+    <member name="M:Bertec.BuildServices.SetPlayerBundleVersionFromBuldnum">
+      <summary>
+            Sets the player bundle version from the build number.
+            </summary>
+    </member>
+    <member name="M:Bertec.BuildServices.GenerateSceneInfoJson">
+      <summary>
+            Generates a JSON file containing scene information.
+            </summary>
+    </member>
+    <member name="M:Bertec.BuildServices.MakeGenerated(System.String)">
+      <summary>
+            Generates required files in the specified main project assets folder.
+            </summary>
+      <param name="mainProjectAssets">The main project assets folder path; optional, defaults to Assets.</param>
+    </member>
+    <member name="M:Bertec.BuildServices.BuildProject(System.String[],System.String,System.String,System.String)">
+      <summary>
+            Builds the project with the specified scenes and output parameters.
+            </summary>
+      <param name="scenes">Array of scene paths to include in the build.</param>
+      <param name="outputFolder">The output folder for the build artifacts.</param>
+      <param name="outputName">The output file name.</param>
+      <param name="outputPackageName">The output package name. Optional.</param>
+      <returns>True if the build succeeded, otherwise false. Optional.</returns>
+    </member>
+    <member name="T:Bertec.CameraRotationAxis">
+      <summary>
+            Specifies the axis of camera rotation.
+            </summary>
+    </member>
+    <member name="T:Bertec.CameraPositionAxis">
+      <summary>
+            Specifies the axis of camera position.
+            </summary>
+    </member>
+    <member name="T:Bertec.CameraDisplayModeStatus">
+      <summary>
+            Tracks and manages the current camera display mode (HMD, FlatPanel, Dome, etc).
+            </summary>
+    </member>
+    <member name="F:Bertec.CameraDisplayModeStatus.Mode">
+      <summary>
+            The current display mode.
+            </summary>
+    </member>
+    <member name="T:Bertec.CameraContainer_Impl">
+      <summary>
+            Implements the main logic for managing the camera container, including camera background color, position, and rotation.
+            Handles initialization, state tracking, and provides utility methods for camera manipulation in both HMD and dome projection modes.
+            </summary>
+      <remarks>
+            The camera container will check if the scene is running on HMD (android) platform and if so, try to turn off the main camera and turn on the Pico stack
+            for proper rendering. Having both the main camera and the pico sdk running at the same time will kill performance.
+            If not HMD, then it assumed to be the Windows player which supports the Dome Projection mode via the UseProjection command line parm.
+            </remarks>
+    </member>
+    <member name="F:Bertec.CameraContainer_Impl.DomeProjectionProvider">
+      <summary>
+            Gets or sets the dome projection provider for this camera container.
+            </summary>
+    </member>
+    <member name="F:Bertec.CameraContainer_Impl.DOME_IDLE_BACKGROUND_COLOR">
+      <summary>
+            The default background color used when the dome is idle.
+            </summary>
     </member>
     <member name="F:Bertec.CameraContainer_Impl.WasUsingSkybox">
       <summary>
-            Need to know if the camera was using Skybox or SolidColor for Clear Flags before
+            Indicates whether the camera was previously using the Skybox clear flag.
             </summary>
     </member>
     <member name="F:Bertec.CameraContainer_Impl.PREV_COLOR">
       <summary>
+            Stores the previous background color of the camera (needed for scenes like Starfield and used when returning from idle)
+            </summary>
+      <remarks>
             Need to know previous background color of the Camera, especially for scenes like Starfield,
-            Because background color can be changed and with returning from idle, it needs to keep the state
+            because background color can be changed and with returning from idle, it needs to keep the state
+            </remarks>
+    </member>
+    <member name="E:Bertec.CameraContainer_Impl.MainCameraAwake">
+      <summary>
+            Event triggered when the main camera awakens.
+            </summary>
+      <param name="cameraContainer">
+        <see cref="T:Bertec.CameraContainer_Impl" /> camera container instance.
+            </param>
+    </member>
+    <member name="E:Bertec.CameraContainer_Impl.MainCameraStart">
+      <summary>
+            Event triggered when the main camera starts.
+            </summary>
+      <param name="cameraContainer">
+        <see cref="T:Bertec.CameraContainer_Impl" /> camera container instance.
+            </param>
+    </member>
+    <member name="E:Bertec.CameraContainer_Impl.CameraBackgroundColorChanged">
+      <summary>
+            Event triggered when the camera background color changes.
+            </summary>
+      <param name="newColor">
+        <see cref="T:UnityEngine.Color" /> new background color.
+            </param>
+      <param name="revertClearFlagsToSkybox">
+        <see cref="T:System.Boolean" /> if true, reverts the skybox clear flags.
+            </param>
+    </member>
+    <member name="P:Bertec.CameraContainer_Impl.Instance">
+      <summary>
+            The singleton instance of the camera container.
+            </summary>
+    </member>
+    <member name="F:Bertec.CameraContainer_Impl.OwnerContainer">
+      <summary>
+            The MonoBehaviour that owns this camera container.
+            </summary>
+    </member>
+    <member name="F:Bertec.CameraContainer_Impl.MainCamera">
+      <summary>
+            The main Unity camera managed by this container.
+            </summary>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.#ctor(UnityEngine.MonoBehaviour,UnityEngine.Camera,UnityEngine.GameObject)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Bertec.CameraContainer_Impl" /> class.
+            </summary>
+      <param name="ownerContainer">The MonoBehaviour that owns this container.</param>
+      <param name="mainCamera">The main camera to manage.</param>
+      <param name="mainContainer">The main container GameObject for rotation.</param>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.ChangeCameraBackgroundColor(UnityEngine.Color,System.Boolean)">
+      <summary>
+            Changes the background color of the main camera.
+            </summary>
+      <param name="color">The new background color.</param>
+      <param name="revertClearFlagsToSkybox">If true, reverts the camera's clear flags to Skybox; otherwise, uses Color.</param>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.RevertCameraBackgroundColor">
+      <summary>
+            Reverts the camera background color to the previous value and clear flags.
+            </summary>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.Start">
+      <summary>
+            Initializes the camera container, sets the base position, and subscribes to camera events. Called from Bertec.CameraContainer.Start
+            </summary>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.OnDestroy">
+      <summary>
+            Cleans up event subscriptions and instance tracking on destruction. Called from Bertec.CameraContainer.OnDestroy 
+            </summary>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.ResetCameraRotation">
+      <summary>
+            Resets the camera rotation smoothly to the default orientation.
+            </summary>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.ResetRotationSmoothly">
+      <summary>
+            Coroutine to smoothly reset the camera rotation to zero over one second.
+            </summary>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.SetCameraRotation(Bertec.SetCameraRotationAngle)">
+      <summary>
+            Sets the camera rotation for a specific axis.
+            </summary>
+      <param name="rotvals">The rotation axis and angle to set.</param>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.ResetCameraPosition(Bertec.ResetCameraPositionAxis)">
+      <summary>
+            Resets the camera position for a specific axis or all axes.
+            </summary>
+      <param name="axis">The axis to reset.</param>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.SetCameraPosition(Bertec.SetCameraPositionValue)">
+      <summary>
+            Sets the camera position for a specific axis or all axes, enforcing camera limits.
+            </summary>
+      <param name="axispos">The axis and position value to set.</param>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.EnforceCameraLimitX(System.Single)">
+      <summary>
+            Clamps the X position value to the allowed camera limits.
+            </summary>
+      <param name="val">The value to clamp.</param>
+      <returns>The clamped value.</returns>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.EnforceCameraLimitY(System.Single)">
+      <summary>
+            Clamps the Y position value to the allowed camera limits.
+            </summary>
+      <param name="val">The value to clamp.</param>
+      <returns>The clamped value.</returns>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.EnforceCameraLimitZ(System.Single)">
+      <summary>
+            Clamps the Z position value to the allowed camera limits.
+            </summary>
+      <param name="val">The value to clamp.</param>
+      <returns>The clamped value.</returns>
+    </member>
+    <member name="T:Bertec.CameraContainerCallbacks">
+      <summary>
+            Provides static callbacks and event registration for camera container RPC commands and state changes.
+            Handles initialization and shutdown of camera-related protocol handlers and exposes events for camera position and rotation changes.
+            </summary>
+    </member>
+    <member name="E:Bertec.CameraContainerCallbacks.OnResetCameraRotation">
+      <summary>
+            Event triggered to reset the camera rotation to its default orientation.
+            </summary>
+    </member>
+    <member name="E:Bertec.CameraContainerCallbacks.OnSetCameraRotation">
+      <summary>
+            Event triggered to set the camera rotation to a specific axis and angle.
+            </summary>
+      <param name="newRotationAngle">
+        <see cref="T:Bertec.SetCameraRotationAngle" /> the axis to set and the new rotation for it.
+            </param>
+    </member>
+    <member name="E:Bertec.CameraContainerCallbacks.OnResetCameraPosition">
+      <summary>
+            Event triggered to reset the camera position to its default value for a given axis.
+            </summary>
+      <param name="resetAxis">
+        <see cref="T:Bertec.ResetCameraPositionAxis" /> the axis to reset
+            </param>
+    </member>
+    <member name="E:Bertec.CameraContainerCallbacks.OnSetCameraPosition">
+      <summary>
+            Event triggered to set the camera position to a specific value for a given axis.
+            </summary>
+      <param name="resetAxis">
+        <see cref="T:Bertec.SetCameraPositionValue" /> the axis to set and the new position for it.
+            </param>
+    </member>
+    <member name="M:Bertec.CameraContainerCallbacks.Init">
+      <summary>
+            Initializes the camera container callbacks and registers protocol command handlers. Called automatically; do not directly call
+            </summary>
+    </member>
+    <member name="M:Bertec.CameraContainerCallbacks.Shutdown">
+      <summary>
+            Shuts down the camera container callbacks and unregisters protocol command handlers. Called automatically; do not directly call
+            </summary>
+    </member>
+    <member name="T:Bertec.ShowCognitiveData">
+      <summary>
+            Data for showing a cognitive display, including the choice ID and optional suboption.
+            </summary>
+    </member>
+    <member name="F:Bertec.ShowCognitiveData.ID">
+      <summary>
+            The CognitiveChoice to show.
+            </summary>
+    </member>
+    <member name="F:Bertec.ShowCognitiveData.SubOption">
+      <summary>
+            The suboption, if any.
+            </summary>
+    </member>
+    <member name="T:Bertec.CognitiveDisplayedData">
+      <summary>
+            Data representing a displayed cognitive challenge, including challenge, response, text, color, and timestamp.
+            </summary>
+    </member>
+    <member name="F:Bertec.CognitiveDisplayedData.Challenge">
+      <summary>
+            The question that the UI should display on the screen for the user to ask the subject.
+            </summary>
+    </member>
+    <member name="F:Bertec.CognitiveDisplayedData.Response">
+      <summary>
+            The answer to the question that would be correct. The UI should record this and display.
+            </summary>
+    </member>
+    <member name="F:Bertec.CognitiveDisplayedData.Text">
+      <summary>
+            The text that was shown; may not be the same as Challenge. UI should record this.
+            </summary>
+    </member>
+    <member name="F:Bertec.CognitiveDisplayedData.Color">
+      <summary>
+            The color of the text, in RGB colors. The UI should record this.
+            </summary>
+    </member>
+    <member name="F:Bertec.CognitiveDisplayedData.AtTime">
+      <summary>
+            The time at which the cognitive display was shown.
+            </summary>
+    </member>
+    <member name="T:Bertec.CognitiveHiddenData">
+      <summary>
+            Data representing when a cognitive display is hidden, including the timestamp.
+            </summary>
+    </member>
+    <member name="F:Bertec.CognitiveHiddenData.AtTime">
+      <summary>
+            The time at which the cognitive display was hidden.
+            </summary>
+    </member>
+    <member name="T:Bertec.CognitiveEvents">
+      <summary>
+            Events and methods for handling cognitive display RPC commands and notifications.
+            </summary>
+    </member>
+    <member name="E:Bertec.CognitiveEvents.ShowCognitiveDisplay">
+      <summary>
+            Event triggered when a cognitive display should be shown.
+            </summary>
+      <param name="showWhat">
+        <see cref="T:Bertec.ShowCognitiveData" /> the type of cognitive display to show
+            </param>
+    </member>
+    <member name="E:Bertec.CognitiveEvents.HideCognitiveDisplay">
+      <summary>
+            Event triggered when a cognitive display should be hidden.
+            </summary>
+    </member>
+    <member name="M:Bertec.CognitiveEvents.CognitiveDisplayed(System.String,System.String)">
+      <summary>
+            Notifies the server that a cognitive challenge has been displayed, with question and answer.
+            </summary>
+      <param name="question">The challenge/question shown to the user.</param>
+      <param name="answer">The correct answer to the challenge.</param>
+    </member>
+    <member name="M:Bertec.CognitiveEvents.CognitiveDisplayed(System.String,System.String,System.String,System.String)">
+      <summary>
+            Notifies the server that a cognitive challenge has been displayed, with full display details.
+            </summary>
+      <param name="text">The text shown to the user.</param>
+      <param name="color">The color of the text (RGB).</param>
+      <param name="challenge">The challenge/question shown to the user.</param>
+      <param name="response">The correct answer to the challenge.</param>
+    </member>
+    <member name="M:Bertec.CognitiveEvents.CognitiveHidden">
+      <summary>
+            Notifies the server that the cognitive display has been hidden.
             </summary>
     </member>
     <member name="T:Bertec.ExecuteOnMainThread">
@@ -49,19 +406,24 @@
             This is a static class that provides a handy functionality to resolve the gap with processing functions from one thread into the
             other. By using ExecuteOnMainThread.AddAction with the function in question and having your main loop code call 
             ExecuteOnMainThread.ProcessActions it will "stack" the function calls until the main thread dequeues them.
-            This is useful when processing incoming TCP or WebSocket data and needing to use a function that would manipulate a GUI or 3d object.
+            This is useful when processing incoming RPC comments that need to use a function that would manipulate a GUI or 3d object.
             </summary>
     </member>
     <member name="M:Bertec.ExecuteOnMainThread.AddAction(System.Action)">
       <summary>
             Adds the passed Action object to the queue to execute later on the main thread.
-            Make sure your main Update() loop calls ExecuteOnMainThread.ProcessActions()
+            The action will be executed in the order it was added in the main unity GUI/3D thread.
             </summary>
       <param name="act">The action to perform. Ex: () =&gt; { CommandAddObject(connectionID, keyValuePairs); }</param>
     </member>
     <member name="M:Bertec.ExecuteOnMainThread.ClearActions">
       <summary>
             Removes all pending queue actions from the main thread execute queue.
+            </summary>
+    </member>
+    <member name="T:Bertec.KeyPointVisualizerEvents">
+      <summary>
+            Provides events and data structures for handling keypoint visualizer changes and updates in the scene.
             </summary>
     </member>
     <member name="T:Bertec.KeyPointVisualizerEvents.VisualizerMode">
@@ -90,25 +452,138 @@
             Only available if Bertec.SceneFeatures.KeypointOptions.CoPAllowed is set.
             <remarks>You scene will get CoPVisualizerUpdated with the selected visualizer object, if any</remarks></summary>
     </member>
+    <member name="F:Bertec.KeyPointVisualizerEvents.FORCEPLATEKEYPOINTTAG">
+      <summary>
+            Key used to identify forceplate keypoints. See VisualizerChanged and KeypointPositionUpdated
+            </summary>
+    </member>
+    <member name="T:Bertec.KeyPointVisualizerEvents.VisualizerModeData">
+      <summary>
+            Data structure for visualizer mode changes.
+            </summary>
+    </member>
+    <member name="F:Bertec.KeyPointVisualizerEvents.VisualizerModeData.Mode">
+      <summary>
+            The new visualizer mode.
+            </summary>
+    </member>
+    <member name="T:Bertec.KeyPointVisualizerEvents.ChangeVisualizerData">
+      <summary>
+            Data structure for visualizer selection changes.
+            </summary>
+    </member>
+    <member name="F:Bertec.KeyPointVisualizerEvents.ChangeVisualizerData.Key">
+      <summary>
+            The key identifying the visualizer.
+            </summary>
+    </member>
+    <member name="F:Bertec.KeyPointVisualizerEvents.ChangeVisualizerData.Value">
+      <summary>
+            The value associated with the visualizer key.
+            </summary>
+    </member>
+    <member name="T:Bertec.KeyPointVisualizerEvents.KeypointPosition">
+      <summary>
+            Represents a single keypoint's position in 3D space.
+            </summary>
+    </member>
+    <member name="T:Bertec.KeyPointVisualizerEvents.KeypointPositionsUpdatedData">
+      <summary>
+            Data structure for updated keypoint positions.
+            </summary>
+    </member>
+    <member name="F:Bertec.KeyPointVisualizerEvents.KeypointPositionsUpdatedData.Keypoints">
+      <summary>
+            Dictionary mapping keypoint IDs to their positions.
+            </summary>
+    </member>
     <member name="E:Bertec.KeyPointVisualizerEvents.VisualizerModeChanged">
       <summary>
             Invoked when the UI changes the Visualizer type, if any
             </summary>
+      <param name="mode">The new <see cref="T:Bertec.KeyPointVisualizerEvents.VisualizerMode" /> selected.</param>
     </member>
     <member name="E:Bertec.KeyPointVisualizerEvents.VisualizerChanged">
       <summary>
             Invoked when the UI changes a visualizer selection. The new string will the be key name that the scene should handle.
-            For the COP, you should compare the key against the FORCEPLATEKEYPOINTTAG static string.
+            For the COP, you should compare the key against the <see cref="F:Bertec.KeyPointVisualizerEvents.FORCEPLATEKEYPOINTTAG" /> static string.
             </summary>
+      <param name="key">The key identifying the visualizer.</param>
+      <param name="value">The value associated with the visualizer key.</param>
     </member>
     <member name="E:Bertec.KeyPointVisualizerEvents.KeypointPositionUpdated">
       <summary>
             Invoked when the keypoint visualizer data is updated. Your scene should move the keypoint id to the passed vector.
-            For the COP, you should compare the key against the FORCEPLATEKEYPOINTTAG static string.
+            For the COP, you should compare the key against the <see cref="F:Bertec.KeyPointVisualizerEvents.FORCEPLATEKEYPOINTTAG" /> static string.
+            </summary>
+      <param name="key">The key identifying the keypoint.</param>
+      <param name="position">The new position of the keypoint as a <see cref="T:UnityEngine.Vector3" />.</param>
+    </member>
+    <member name="T:Bertec.SingleMarkerTrackerPosition">
+      <summary>
+            The position and occlusion state of a single marker tracker.
+            </summary>
+    </member>
+    <member name="T:Bertec.DualMarkerTrackerPositions">
+      <summary>
+            The positions of two marker trackers (left and right).
+            </summary>
+    </member>
+    <member name="T:Bertec.ForceLineValues">
+      <summary>
+            The force line values for left and right.
+            </summary>
+    </member>
+    <member name="T:Bertec.MarkerTrackerEvents">
+      <summary>
+            Events for marker tracker updates and force line values.
+            </summary>
+    </member>
+    <member name="E:Bertec.MarkerTrackerEvents.SingleMarkerTrackerUpdated">
+      <summary>
+            Event triggered when a single marker tracker position is updated.
+            </summary>
+      <param name="position">
+        <see cref="T:Bertec.SingleMarkerTrackerPosition" /> The updated marker tracker position.</param>
+    </member>
+    <member name="E:Bertec.MarkerTrackerEvents.DualMarkerTrackersUpdated">
+      <summary>
+            Event triggered when both left and right marker tracker positions are updated.
+            </summary>
+      <param name="positions">
+        <see cref="T:Bertec.DualMarkerTrackerPositions" /> The updated dual marker tracker positions.</param>
+    </member>
+    <member name="E:Bertec.MarkerTrackerEvents.HeadTrackerUpdated">
+      <summary>
+            Event triggered when the head marker tracker position is updated.
+            </summary>
+      <param name="position">
+        <see cref="T:Bertec.SingleMarkerTrackerPosition" /> The updated head marker tracker position.</param>
+    </member>
+    <member name="E:Bertec.MarkerTrackerEvents.ForceLinesUpdated">
+      <summary>
+            Event triggered when force line values are updated.
+            </summary>
+      <param name="values">
+        <see cref="T:Bertec.ForceLineValues" /> The updated force line values.</param>
+    </member>
+    <member name="T:Bertec.ObstacleHitmissCount">
+      <summary>
+            Represents the hit and miss count data for obstacles.
+            </summary>
+    </member>
+    <member name="T:Bertec.ObstacleShownHiddenData">
+      <summary>
+            When an obstacle is shown or hidden.
+            </summary>
+    </member>
+    <member name="T:Bertec.ObstacleEvents">
+      <summary>
+            Provides events and methods for handling obstacle-related actions and communication between the scene and PC.
             </summary>
     </member>
     <member name="E:Bertec.ObstacleEvents.OnResetHitMissCounts">
-      <summary>Invoked when the PC side wants the Scene to reset the hit/miss counts for the Obstacle. Typically when starting/restarting a protocol</summary>
+      <summary>Invoked when the PC side wants the Scene to reset the hit/miss counts for the Obstacle. Typically triggered when starting/restarting a protocol</summary>
     </member>
     <member name="M:Bertec.ObstacleEvents.ObstacleDisplayed">
       <summary>Call this when an Obstacle shows up on the screen; the PC side may elect to trigger an event with this</summary>
@@ -118,13 +593,174 @@
     </member>
     <member name="M:Bertec.ObstacleEvents.UpdateHitMiss(System.Int32,System.Int32)">
       <summary>Call to update the running hit/miss count for Obstacles. The PC side will keep track of this and display info and recording</summary>
+      <param name="hit">The current hit count.</param>
+      <param name="miss">The current miss count.</param>
+    </member>
+    <member name="M:Bertec.ObstacleEvents.ResetHitMissCounts">
+      <summary>
+            Triggers the reset of hit/miss counts for obstacles.
+            </summary>
+    </member>
+    <member name="T:Bertec.OptionsChangedEventData">
+      <summary>
+            Event data for when protocol options have changed.
+            </summary>
+    </member>
+    <member name="F:Bertec.OptionsChangedEventData.TestGUID">
+      <summary>
+            The protocol GUID that is requesting the change.
+            </summary>
+    </member>
+    <member name="F:Bertec.OptionsChangedEventData.Options">
+      <summary>
+            The options to pass to the scene.
+            </summary>
+    </member>
+    <member name="T:Bertec.PackageInfoInterface">
+      <summary>
+            Interface for retrieving package version information (platform specific)
+            </summary>
+    </member>
+    <member name="M:Bertec.PackageInfoInterface.GetPackageVersion(System.String)">
+      <summary>
+            Gets the version string for a specific package.
+            </summary>
+      <param name="packageName">The name of the package.</param>
+      <returns>The version string of the package.</returns>
+    </member>
+    <member name="M:Bertec.PackageInfoInterface.GetPackageVersions">
+      <summary>
+            Gets a dictionary of all package names and their version strings.
+            </summary>
+      <returns>A dictionary mapping package names to version strings.</returns>
+    </member>
+    <member name="M:Bertec.PackageInfo.GetPackageVersion(System.String)">
+      <summary>
+            Gets the version string for a specific package.
+            </summary>
+      <param name="packageName">The name of the package.</param>
+      <returns>The version string of the package, or null if not available.</returns>
+    </member>
+    <member name="M:Bertec.PackageInfo.GetPackageVersions">
+      <summary>
+            Gets a dictionary of all package names and their version strings.
+            </summary>
+      <returns>A dictionary mapping package names to version strings, or null if not available.</returns>
+    </member>
+    <member name="T:Bertec.PostProcessingEffectsMoniter">
+      <summary>
+            Monitors and manages post-processing effects, raising events when effects are changed.
+            </summary>
+    </member>
+    <member name="E:Bertec.PostProcessingEffectsMoniter.PostProcessingEffectChanged">
+      <summary>
+            Event triggered when a post-processing effect is changed.
+            </summary>
+      <param name="effectData">
+        <see cref="T:Bertec.PostProcessingEffectData" /> The effect and level to apply.</param>
+    </member>
+    <member name="T:Bertec.PostProcessingLayerHelper">
+      <summary>
+            Provides access to post-processing layer helper functionality.
+            </summary>
+    </member>
+    <member name="M:Bertec.PostProcessingLayerHelper.EnablePostProcessLayer(UnityEngine.Camera,System.Boolean)">
+      <summary>
+            Enables or disables the post-processing layer on the specified camera.
+            </summary>
+      <param name="mainCamera">The camera to modify.</param>
+      <param name="enabled">True to enable, false to disable.</param>
+      <returns>True if the operation succeeded, otherwise false.</returns>
+    </member>
+    <member name="M:Bertec.PostProcessingLayerHelper.AddPostProcessLayer(UnityEngine.Camera,UnityEngine.GameObject,UnityEngine.Transform)">
+      <summary>
+            Adds a post-processing layer to the specified camera.
+            </summary>
+      <param name="mainCamera">The camera to add the layer to.</param>
+      <param name="cameraObject">The GameObject associated with the camera.</param>
+      <param name="cameraTransform">The transform of the camera.</param>
+      <returns>An enumerator for coroutine support.</returns>
+    </member>
+    <member name="T:Bertec.FrameworkInitType">
+      <summary>
+            The initialization stages for the Bertec protocol framework.
+            </summary>
+    </member>
+    <member name="F:Bertec.FrameworkInitType.PrebuildExec">
+      <summary>Called during the build step (may be called multiple times).</summary>
+    </member>
+    <member name="F:Bertec.FrameworkInitType.RegisterObjectStructs">
+      <summary>Called during SubsystemRegistration to register all object structs</summary>
+    </member>
+    <member name="F:Bertec.FrameworkInitType.BeforeSubsystem">
+      <summary>Called during SubsystemRegistration BEFORE the framework core bits.</summary>
+    </member>
+    <member name="F:Bertec.FrameworkInitType.AfterSubsystem">
+      <summary>Called during SubsystemRegistration AFTER the framework core bits.</summary>
+    </member>
+    <member name="F:Bertec.FrameworkInitType.BeforeAssemblies">
+      <summary>Called during AfterAssembliesLoaded BEFORE the framework core bits.</summary>
+    </member>
+    <member name="F:Bertec.FrameworkInitType.AfterAssemblies">
+      <summary>Called during AfterAssembliesLoaded AFTER the framework core bits.</summary>
+    </member>
+    <member name="F:Bertec.FrameworkInitType.BeforeSplashScreen">
+      <summary>Called during BeforeSplashScreen BEFORE the framework core bits.</summary>
+    </member>
+    <member name="F:Bertec.FrameworkInitType.AfterSplashScreen">
+      <summary>Called during BeforeSplashScreen AFTER the framework core bits.</summary>
+    </member>
+    <member name="F:Bertec.FrameworkInitType.BeforeSceneLoad">
+      <summary>Typically not used; called before scene load. You would prefer Start or Awake more than anything</summary>
+    </member>
+    <member name="F:Bertec.FrameworkInitType.AfterSceneLoad">
+      <summary>Called after scene load.</summary>
     </member>
     <member name="T:Bertec.FrameworkInitAttribute">
       <summary>
-            This attribute extends the Unity.RuntimeInitializeOnLoadMethod attribute to allow more finer-grained control from within our
-            own framework. The init levels allow both before and after each stage, so you can be sure to have things initialized in more or
+            This attribute extends the Unity.RuntimeInitializeOnLoadMethod attribute to allow more finer-grained control from within the
+            Bertec Framework. The init levels allow both before and after each stage, so you can be sure to have things initialized in more or
             less the proper order.
-            A further level of control might be possible with a "priority level" int value, to order each init within its own scope.
+            </summary>
+    </member>
+    <member name="T:Bertec.ProtocolFramework">
+      <summary>
+            Provides initialization and shutdown logic for the Bertec protocol framework, including client/server/bridge startup and event hooks.
+            </summary>
+    </member>
+    <member name="E:Bertec.ProtocolFramework.OnTerminate">
+      <summary>
+            Event triggered when the framework is terminating.
+            </summary>
+    </member>
+    <member name="E:Bertec.ProtocolFramework.OnTerminating">
+      <summary>
+            Event triggered when the framework is terminating, with a flag indicating if it is a hard/fast shutdown.
+            </summary>
+    </member>
+    <member name="P:Bertec.ProtocolFramework.IsServer">
+      <summary>
+            Gets whether the framework is running in server mode.
+            </summary>
+    </member>
+    <member name="P:Bertec.ProtocolFramework.IsBridge">
+      <summary>
+            Gets whether the framework is running in bridge server mode.
+            </summary>
+    </member>
+    <member name="P:Bertec.ProtocolFramework.IsClient">
+      <summary>
+            Gets whether the framework is running in client mode (most scenes will have this)
+            </summary>
+    </member>
+    <member name="P:Bertec.ProtocolFramework.Terminating">
+      <summary>
+            Gets whether the framework is currently terminating.
+            </summary>
+    </member>
+    <member name="T:Bertec.ProtocolFramework.StartType">
+      <summary>
+            The type of service the framework is running as.
             </summary>
     </member>
     <member name="M:Bertec.ProtocolFramework.Terminate(System.Boolean)">
@@ -132,6 +768,8 @@
             Call all the shutdown methods and disconnect the RPC, then exit the application. This will do a hard-kill of the running app,
             not just send it to the back and suspend it. Use instead of UnityEngine.Application.Quit()
             </summary>
+      <param name="hardAndFast">If true, does not attempt to gracefully shut down first; app exit may leave resources left open.</param>
+      <remarks>Note that the Framework does this for you automatically and you should never do this unless you have a VERY specific use-case.</remarks>
     </member>
     <member name="T:Bertec.StartupTypeAttribute">
       <summary>
@@ -139,103 +777,243 @@
             "client" scene so the Kinamoto Customer scenes don't need to do any extra work.
             </summary>
     </member>
+    <member name="T:Bertec.PXRServiceBridgeInitAttribute">
+      <summary>
+            This attribute must be on the PXRServiceBridge.Init function otherwise things won't work right on the headset
+            What this really does is basically tie this in the FrameworkInitType.BeforeSubsystem so it gets called at the right time
+            </summary>
+    </member>
+    <member name="T:Bertec.PlateInfo">
+      <summary>
+            Represents information about a force plate, including type, dimensions, firmware, and serial.
+            </summary>
+    </member>
+    <member name="T:Bertec.PlateInfo.PlateType">
+      <summary>
+            The type of force plate.
+            </summary>
+    </member>
+    <member name="T:Bertec.SceneMovement">
+      <summary>
+            Specifies the type of scene movement.
+            </summary>
+    </member>
+    <member name="F:Bertec.SceneMovement.Static">
+      <summary>Scene doesn't move.</summary>
+    </member>
+    <member name="F:Bertec.SceneMovement.SwayReferenced">
+      <summary>Scene moves with the SwayAngle value (nodding rotation).</summary>
+    </member>
+    <member name="F:Bertec.SceneMovement.PlateReferenced">
+      <summary>Scene moves with the translation position and rotation (camera in/out+rotation).</summary>
+    </member>
+    <member name="F:Bertec.SceneMovement.RollRotation">
+      <summary>Scene rolls left/right (shoulder, random l/r direction, 15 degrees @ 45 deg/sec)).</summary>
+    </member>
+    <member name="T:Bertec.ProtocolOptionChangedEventHandler">
+      <summary>
+            Handles protocol option changes and exposes events for option updates.
+            </summary>
+    </member>
+    <member name="P:Bertec.ProtocolOptionChangedEventHandler.Scene">
+      <summary>
+            The current scene name.
+            </summary>
+    </member>
+    <member name="E:Bertec.ProtocolOptionChangedEventHandler.SceneChanged">
+      <summary>
+            Event triggered when the scene changes.
+            </summary>
+      <param name="sceneName">name of the scene</param>
+      <param name="testGuid">protocol guid</param>
+    </member>
+    <member name="P:Bertec.ProtocolOptionChangedEventHandler.SubjectHeight">
+      <summary>
+            The subject's height in millimeters.
+            </summary>
+    </member>
+    <member name="E:Bertec.ProtocolOptionChangedEventHandler.SubjectHeightChanged">
+      <summary>
+            Event triggered when the subject height changes.
+            </summary>
+    </member>
+    <member name="P:Bertec.ProtocolOptionChangedEventHandler.AudioFeedback">
+      <summary>
+            Indicates if audio feedback is enabled.
+            </summary>
+    </member>
+    <member name="E:Bertec.ProtocolOptionChangedEventHandler.AudioFeedbackChanged">
+      <summary>
+            Event triggered when audio feedback changes.
+            </summary>
+    </member>
+    <member name="E:Bertec.ProtocolOptionChangedEventHandler.OnOptionChanged">
+      <summary>
+            Event triggered whenever an unhandled option is changed.
+            </summary>
+    </member>
+    <member name="M:Bertec.ProtocolOptionChangedEventHandler.ClearAllEventHandlers">
+      <summary>
+            Clears all event handlers by resetting them to empty delegates.
+            </summary>
+    </member>
     <member name="T:Bertec.ProtocolOptions">
       <summary>
             This class connects to the protocol-command web socket interface and allows you to issue commands over that.
             Some protocols support the ProtocolCommand interface, allowing for commands to be sent to them. These commands
             can be simple things (ex: SetScore) with no response or more complex functions that return a single future result
-            (ex: GetScoreForAgeGroup). Other commands return *periodic* updates, similar to the COPDataReader and friends.
-            These periodic updates can be considered either event signals (ex: some condition has changed) or continual
-            data updates (ex: live calculations against the data flow)
+            (ex: GetScoreForHitCount). Other commands return *periodic* updates; these periodic updates can be considered
+            either event signals (ex: some condition has changed) or continual data updates (ex: live calculations against the data flow)
             </summary>
-      <note>This is basically a convenience wrapper around the ProtocolRPC functions.</note>
-      <note>Like ProtocolRPC, all the public functions are static.</note>
+      <remarks>This is basically a convenience wrapper around the ProtocolRPC functions.</remarks>
+    </member>
+    <member name="E:Bertec.ProtocolOptions.OnOptionChanged">
+      <summary>
+            Event triggered when an option changes. The string is the key, the object is the new value.
+            </summary>
+      <param name="key">The key for the option. See the SceneOptions.</param>
+      <param name="value">The value for the changed option.</param>
+    </member>
+    <member name="F:Bertec.ProtocolOptions.AllOptionEventsExecuteOnMainThread">
+      <summary>
+            If true, all option events automatically execute on the main thread via Bertec.ExecuteOnMainThread.AddAction.
+            </summary>
+    </member>
+    <member name="M:Bertec.ProtocolOptions.ResetOptions">
+      <summary>
+            Resets the current options to the initial options parsed from the command line or launch intent.
+            </summary>
+    </member>
+    <member name="M:Bertec.ProtocolOptions.IsSet(System.String)">
+      <summary>
+            Determines whether the specified key is set in the current options.
+            </summary>
+      <param name="key">The option key.</param>
+      <returns>True if the key is set; otherwise, false.</returns>
+    </member>
+    <member name="M:Bertec.ProtocolOptions.UpdateOptions(System.Collections.Generic.Dictionary{System.String,System.Object})">
+      <summary>
+            Updates multiple options from the provided dictionary. Triggers multiple OnOptionChanged events.
+            </summary>
+      <param name="dict">Dictionary of options (key:value pairs) to update.</param>
+    </member>
+    <member name="M:Bertec.ProtocolOptions.UpdateOption(System.String,System.Object)">
+      <summary>
+            Updates a single option and triggers the OnOptionChanged event.
+            </summary>
+      <param name="key">The option key.</param>
+      <param name="value">The new value.</param>
+    </member>
+    <member name="P:Bertec.ProtocolOptions.CurrentOptions">
+      <summary>
+            Gets the current protocol options as a dictionary.
+            </summary>
+    </member>
+    <member name="M:Bertec.ProtocolOptions.DictionaryValue(System.String)">
+      <summary>
+            Gets the value of the specified key as a dictionary.
+            </summary>
+      <param name="key">The option key.</param>
+      <returns>The value as a dictionary, or an empty dictionary if not set.</returns>
+    </member>
+    <member name="M:Bertec.ProtocolOptions.ArrayValue(System.String)">
+      <summary>
+            Gets the value of the specified key as a string array.
+            </summary>
+      <param name="key">The option key.</param>
+      <returns>The value as a string array, or an empty array if not set.</returns>
     </member>
     <member name="M:Bertec.ProtocolOptions.StringValue(System.String)">
       <summary>
-            Get the string value for the given command line parm; if it doesn't exist, an empty string is returned.
-            Note that if there are multiple values for this key (ex: -foo 1 -foo 2) then the results are a comma separated string (1,2).
+            Get the string value for the given option; if it doesn't exist, an empty string is returned.
             </summary>
-      <param name="key">The command line parm</param>
+      <param name="key">The option key</param>
       <returns>The value of the key</returns>
     </member>
     <member name="M:Bertec.ProtocolOptions.StringValue(System.String,System.String)">
       <summary>
-            Get the string value for the given command line parm; if it doesn't exist, the default val string is returned.
-            Note that if there are multiple values for this key (ex: -foo 1 -foo 2) then the results are a comma separated string (1,2).
+            Get the string value for the given option; if it doesn't exist, the default val string is returned.
             </summary>
-      <param name="key">The command line parm</param>
+      <param name="key">The option key</param>
       <param name="val">Default value if key does not exist</param>
       <returns>The value of the key</returns>
     </member>
     <member name="M:Bertec.ProtocolOptions.IntValue(System.String,System.Int32)">
       <summary>
-            Get the intiger value for the given command line parm; if it doesn't exist, the default val is returned.
-            Note that if there are multiple values for this key (ex: -foo 1 -foo 2) then the results are undefined.
+            Get the integer value for the given option; if it doesn't exist, the default val is returned.
             </summary>
-      <param name="key">The command line parm</param>
+      <param name="key">The option key</param>
       <param name="val">Default value if key does not exist</param>
-      <returns>The intiger value of the key</returns>
+      <returns>The integer value of the key</returns>
     </member>
     <member name="M:Bertec.ProtocolOptions.Unsigned64Value(System.String,System.UInt64)">
       <summary>
-            Get the unsigned 64 bit intiger value for the given command line parm; if it doesn't exist, the default val is returned.
-            Note that if there are multiple values for this key (ex: -foo 1 -foo 2) then the results are undefined.
+            Get the unsigned 64 bit integer value for the given option; if it doesn't exist, the default val is returned.
             </summary>
-      <param name="key">The command line parm</param>
+      <param name="key">The option key</param>
       <param name="val">Default value if key does not exist</param>
-      <returns>The intiger value of the key</returns>
+      <returns>The integer value of the key</returns>
     </member>
     <member name="M:Bertec.ProtocolOptions.FloatValue(System.String,System.Single)">
       <summary>
-            Get the float value for the given command line parm; if it doesn't exist, the default val is returned.
-            Note that if there are multiple values for this key (ex: -foo 1 -foo 2) then the results are undefined.
+            Get the float value for the given option; if it doesn't exist, the default val is returned.
             </summary>
-      <param name="key">The command line parm</param>
+      <param name="key">The option key</param>
       <param name="val">Default value if key does not exist</param>
       <returns>The float value of the key</returns>
     </member>
     <member name="M:Bertec.ProtocolOptions.BoolValue(System.String,System.Boolean)">
       <summary>
-            Get the boolean value for the given command line parm; if it doesn't exist, the default val is returned.
+            Get the boolean value for the given option; if it doesn't exist, the default val is returned.
             This function handles both numbers (0,1,-1) and strings (false, true). 0 is treated as false, anything else is treated as true.
-            Note that if there are multiple values for this key (ex: -foo 0 -foo 1) then the results are undefined.
             </summary>
-      <param name="key">The command line parm</param>
+      <param name="key">The option key</param>
       <param name="val">Default boolean value if key does not exist</param>
       <returns>The value of the key</returns>
     </member>
     <member name="M:Bertec.ProtocolOptions.ColorValue(System.String,UnityEngine.Color)">
       <summary>
-            Get the given command line parm as a Unity Color object. This method handles both discrete numbers (1,2,3)
+            Get the given option as a Unity Color object. This method handles both discrete numbers (1,2,3)
             and HTML-style hex colors (#010203). Both RGB and RGBA variants are supported.
-            Note that if there are multiple values for this key (ex: -foo 1 -foo 2) then the results are undefined.
             </summary>
-      <param name="key">The command line parm</param>
+      <param name="key">The option key</param>
       <param name="val">Default color value if key does not exist</param>
       <returns>A Color object</returns>
     </member>
     <member name="M:Bertec.ProtocolOptions.Vector2Value(System.String,UnityEngine.Vector2)">
       <summary>
-            Get the given command line parm as a Unity Vector2 object, that is, two discrete numbers (1.0,2.5)
-            Note that if there are multiple values for this key (ex: -foo 1 -foo 2) then the results are undefined.
+            Get the given option as a Unity Vector2 object, that is, two discrete numbers (1.0,2.5)
             </summary>
-      <param name="key">The command line parm</param>
+      <param name="key">The option key</param>
       <param name="val">Default Vector2 value if key does not exist</param>
       <returns>A Vector2 object</returns>
     </member>
     <member name="M:Bertec.ProtocolOptions.Vector3Value(System.String,UnityEngine.Vector3)">
       <summary>
-            Get the given command line parm as a Unity Vector3 object, that is, three discrete numbers (1.0,2.5,3.9)
-            Note that if there are multiple values for this key (ex: -foo 1 -foo 2) then the results are undefined.
+            Get the given option as a Unity Vector3 object, that is, three discrete numbers (1.0,2.5,3.9)
             </summary>
-      <param name="key">The command line parm</param>
+      <param name="key">The option key</param>
       <param name="val">Default Vector3 value if key does not exist</param>
       <returns>A Vector3 object</returns>
     </member>
+    <member name="T:Bertec.ClientConnectedDisconnected">
+      <summary>
+            Event data for when a client connects or disconnects.
+            </summary>
+    </member>
     <member name="T:Bertec.ProtocolRPC">
       <summary>
-            Class that manages the websocket connection and the rpc commands. Does the command dispatch (callbacks) for the registered handles and etc.
+            Class that manages the network connection and the rpc commands. Does the command dispatch (callbacks) for the registered handles and etc.
+            </summary>
+    </member>
+    <member name="P:Bertec.ProtocolRPC.ConnectedIP">
+      <summary>
+            The connected IP address if connected, otherwise an empty string.
+            </summary>
+    </member>
+    <member name="P:Bertec.ProtocolRPC.ConnectedURL">
+      <summary>
+            The connected URL if connected, otherwise an empty string.
             </summary>
     </member>
     <member name="P:Bertec.ProtocolRPC.IsConnected">
@@ -244,30 +1022,98 @@
             place but just that a server of some type exists on the other end.
             </summary>
     </member>
+    <member name="E:Bertec.ProtocolRPC.OnConnected">
+      <summary>
+            Event triggered when the RPC system is connected to the PC
+            </summary>
+    </member>
+    <member name="E:Bertec.ProtocolRPC.OnDisconnected">
+      <summary>
+            Event triggered when the RPC system is disconnected from the PC
+            </summary>
+    </member>
     <member name="M:Bertec.ProtocolRPC.IssueResponse(System.UInt64,System.Object)">
       <summary>
             Sends the response from the handled command object and parms over in a fire-and-forget manner; no callbacks are set up to be handled and there is no return value. 
             </summary>
       <param name="responseID">The response uuid that will be sent back; the other side will handle this.</param>
-      <param name="parms">An object (typically an anonmyous type) of parms to be sent. These will be converted to a JSON object string.</param>
+      <param name="parms">An object (typically an anonymous type) of parms to be sent. These will be converted to a JSON object string.</param>
       <returns>No return value</returns>
-      <note>IssueResponse is the same as IssueCommand and calls that if responseID is non zero</note>
+      <remarks>IssueResponse is the same as IssueCommand and calls that if responseID is non zero</remarks>
+    </member>
+    <member name="M:Bertec.ProtocolRPC.IssueResponse(System.UInt64,System.Byte[])">
+      <summary>
+            Sends the response from the handled command object and parms as a byte array in a fire-and-forget manner.
+            </summary>
+      <param name="responseID">The response uuid that will be sent back.</param>
+      <param name="parms">The byte array of parameters to send.</param>
+      <remarks>IssueResponse is the same as IssueCommand and calls that if responseID is non zero</remarks>
+    </member>
+    <member name="M:Bertec.ProtocolRPC.IssueResponse(System.UInt64)">
+      <summary>
+            Sends the response from the handled command object with no parameters in a fire-and-forget manner.
+            </summary>
+      <param name="responseID">The response uuid that will be sent back.</param>
+      <remarks>IssueResponse is the same as IssueCommand and calls that if responseID is non zero</remarks>
+    </member>
+    <member name="M:Bertec.ProtocolRPC.IssueResponse``1(System.UInt64,``0)">
+      <summary>
+            Sends the response from the handled command object and strongly-typed parameters in a fire-and-forget manner.
+            </summary>
+      <typeparam name="T">The type of the parameters.</typeparam>
+      <param name="responseID">The response uuid that will be sent back.</param>
+      <param name="parms">The parameters to send.</param>
+      <remarks>IssueResponse is the same as IssueCommand and calls that if responseID is non zero</remarks>
     </member>
     <member name="M:Bertec.ProtocolRPC.IssueCommand(System.UInt64,System.Object)">
       <summary>
             Sends the command and the parms over in a fire-and-forget manner; no callbacks are set up to be handled and there is no return value. 
             </summary>
       <param name="cmdID">The command to be sent to the web socket interface; these are currently defined on the server.</param>
-      <param name="parms">An object (typically an anonmyous type) of parms to be sent. These will be converted to a JSON object string.</param>
-      <returns>No return value</returns>
+      <param name="parms">An object (typically an anonymous type) of parms to be sent. These will be converted to a JSON object string.</param>
     </member>
-    <member name="M:Bertec.ProtocolRPC.IssueCommand(System.UInt64,System.Object,System.Action{Bertec.CoreWebSocketCommandPacket})">
+    <member name="M:Bertec.ProtocolRPC.IssueCommand(Bertec.RPCCommands.Cmd,System.Object)">
+      <summary>
+            Sends the command and the parms over in a fire-and-forget manner using a command enum.
+            </summary>
+      <param name="cmdID">The command enum to be sent to the web socket interface.</param>
+      <param name="parms">An object of parms to be sent.</param>
+    </member>
+    <member name="M:Bertec.ProtocolRPC.IssueCommand(Bertec.RPCCommands.Cmd,System.Byte[])">
+      <summary>
+            Sends the command and the parms as a byte array over in a fire-and-forget manner.
+            </summary>
+      <param name="cmdID">The command to be sent to the web socket interface.</param>
+      <param name="parms">The byte array of parameters to send as-is.</param>
+    </member>
+    <member name="M:Bertec.ProtocolRPC.IssueCommand``1(System.UInt64,``0)">
+      <summary>
+            Sends the command and strongly-typed parameters over in a fire-and-forget manner using a command enum.
+            </summary>
+      <param name="cmdID">The command enum to be sent to the web socket interface.</param>
+      <param name="parms">The byte array of parameters to send.</param>
+    </member>
+    <member name="M:Bertec.ProtocolRPC.IssueCommand``1(Bertec.RPCCommands.Cmd,``0)">
+      <summary>
+            Sends the command and strongly-typed parameters over in a fire-and-forget manner.
+            </summary>
+      <typeparam name="T">The type of the parameters.</typeparam>
+      <param name="cmdID">The command to be sent to the web socket interface.</param>
+      <param name="parms">The parameters to send.</param>
+    </member>
+    <member name="M:Bertec.ProtocolRPC.IssueCommand(System.UInt64)">
+      <summary>
+            Sends the command with no parameters over in a fire-and-forget manner.
+            </summary>
+      <param name="cmdID">The command to be sent to the web socket interface.</param>
+    </member>
+    <member name="M:Bertec.ProtocolRPC.IssueCommand(System.UInt64,System.Object,System.Action{Bertec.RPCCommandPacket})">
       <summary>
             Sends the command and the parms with a callback id that will invoke the completionCallback method if and when the host returns a value.
             This is expected to result in a single updates which will call the completionCallback once and then remove the uuid and callback from the internal table.
             </summary>
       <param name="cmdID">The command to be sent to the web socket interface; these are currently defined on the server.</param>
-      <param name="parms">An object (typically an anonmyous type) of parms to be sent. These will be converted to a JSON object string.</param>
+      <param name="parms">An object (typically an anonymous type) of parms to be sent. These will be converted to a JSON object string.</param>
       <param name="completionCallback">The method that should be invoked when the server returns back a result. The method will be called
             with the raw JSON string and an generic object parsed from the JSON string.</param>
       <returns>The UUID that was assigned to this command. Can be used for internal bookkeeping or for later use by RemoveCallback.</returns>
@@ -281,13 +1127,20 @@
       <param name="command">the protocol-specific command to issue. Sent as-is</param>
       <param name="parms">anonymous collection parms for the command</param>
     </member>
-    <member name="M:Bertec.ProtocolRPC.AddCommandHandler(System.UInt64,System.Action{Bertec.CoreWebSocketCommandPacket})">
+    <member name="M:Bertec.ProtocolRPC.AddCommandHandler(System.UInt64,System.Action{Bertec.RPCCommandPacket})">
       <summary>
             Adds a callback handler for the given command command id.
             </summary>
       <param name="cmdID">The command id that should be matched.</param>
-      <param name="completionCallback">The method that should be invoked when the websocket recieves the command id.
-            The method will be called with the CoreWebSocketCommandPacket which can be used to unpack the data and optionally send back a response.</param>
+      <param name="completionCallback">The method that should be invoked when the handler recieves the command id.
+            The method will be called with the RPCCommandPacket which can be used to unpack the data and optionally send back a response.</param>
+    </member>
+    <member name="M:Bertec.ProtocolRPC.AddCommandHandler(Bertec.RPCCommands.Cmd,System.Action{Bertec.RPCCommandPacket})">
+      <summary>
+            Adds a callback handler for the given command enum id.
+            </summary>
+      <param name="cmdID">The command enum id that should be matched.</param>
+      <param name="completionCallback">The method that should be invoked when the handler receives the command id.</param>
     </member>
     <member name="M:Bertec.ProtocolRPC.RemoveCommandHandler(System.UInt64)">
       <summary>
@@ -297,22 +1150,40 @@
             </summary>
       <param name="cmdID">The command id that was passed into AddCommandHandler</param>
     </member>
-    <member name="T:Bertec.ProtocolRPCBridge">
+    <member name="M:Bertec.ProtocolRPC.RemoveCommandHandler(Bertec.RPCCommands.Cmd)">
       <summary>
-            Websocket server class that handles accepting connections from sub-packages and forwarding them to the pc
-            <note>Unlike ProtocolRPC, this is not a singleton and is a member variable of ProtocolRPC</note>
-            There are also some other considerations that need to be made. First, what happens when the main RPC connection is lost?
-            Right now we close the connection for all the other running apk's, which may not be what we want or need.
-            Second, the way things are set up in the PC is that the video stream is only started on the initial connect to the main
-            Bridge, so if the apk starts later (which wil be 100% of the time), then it never gets the stream start command. So we need
-            to have the PC side issue the video start probably at the point of scene switch, not on connect.
-            We will also need to be able to issue back to the PC that the apk is closing, so that the PC can close the video stream.
-            The apk 'client' connection open/close events need to trigger messages back to the pc.
+            Removes the callback for the given command enum id.
             </summary>
+      <param name="cmdID">The command enum id that was passed into AddCommandHandler</param>
     </member>
     <member name="T:Bertec.SceneInfoAttribute">
       <summary>
             Attribute tag class that is used by the build step to generate a json file of all the scene info that Kinamoto can then read
+            </summary>
+    </member>
+    <member name="P:Bertec.SceneInfoAttribute.Name">
+      <summary>
+            The display name of the scene.
+            </summary>
+    </member>
+    <member name="P:Bertec.SceneInfoAttribute.Key">
+      <summary>
+            The unique id key for the scene.
+            </summary>
+    </member>
+    <member name="P:Bertec.SceneInfoAttribute.Scene">
+      <summary>
+            The scene path.
+            </summary>
+    </member>
+    <member name="P:Bertec.SceneInfoAttribute.Description">
+      <summary>
+            The description of the scene to show in the ui.
+            </summary>
+    </member>
+    <member name="P:Bertec.SceneInfoAttribute.AKA">
+      <summary>
+            Alternate keys or names for the scene.
             </summary>
     </member>
     <member name="F:Bertec.SceneChoiceItem.Key">
@@ -352,6 +1223,11 @@
       <param name="k">The value to be used for the Key.</param>
       <param name="n">The value to be used for the Name.</param>
     </member>
+    <member name="T:Bertec.SceneChoices">
+      <summary>
+            A collection of scene choice items and a default choice.
+            </summary>
+    </member>
     <member name="F:Bertec.SceneChoices.Items">
       <summary>
             Array of choices that will be displayed for the user to see.
@@ -367,6 +1243,24 @@
             Not used for the Title type.
             </summary>
     </member>
+    <member name="M:Bertec.SceneChoices.#ctor(Bertec.SceneChoiceItem)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Bertec.SceneChoices" /> class with a single item.
+            </summary>
+      <param name="oneitem">The single choice item.</param>
+    </member>
+    <member name="M:Bertec.SceneChoices.#ctor(System.Collections.Generic.List{Bertec.SceneChoiceItem},System.String)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Bertec.SceneChoices" /> class with a list of choices and a default.
+            </summary>
+      <param name="choices">The list of choices.</param>
+      <param name="defaultChoice">The default choice value.</param>
+    </member>
+    <member name="T:Bertec.CognitiveChoiceItem">
+      <summary>
+            A cognitive choice item, which may have sub-options.
+            </summary>
+    </member>
     <member name="F:Bertec.CognitiveChoiceItem.SubOptions">
       <summary>
             Optional. Possible sub options that can be selected for the Cognitive choice.
@@ -378,10 +1272,38 @@
             Required if SubOptions is defined. What is shown in the UI as the label lead-in for the SubOptions
             </summary>
     </member>
+    <member name="T:Bertec.CognitiveChoices">
+      <summary>
+            A collection of cognitive choice items and a default choice.
+            </summary>
+    </member>
     <member name="F:Bertec.CognitiveChoices.Items">
       <summary>
             Array of Cognitive choices that will be displayed for the user to see.
             Items will be shown in the same order as they appear in the array.
+            </summary>
+    </member>
+    <member name="F:Bertec.CognitiveChoices.DefaultChoice">
+      <summary>
+            The default choice value.
+            </summary>
+    </member>
+    <member name="M:Bertec.CognitiveChoices.#ctor(Bertec.CognitiveChoiceItem)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Bertec.CognitiveChoices" /> class with a single item.
+            </summary>
+      <param name="oneitem">The single cognitive choice item.</param>
+    </member>
+    <member name="M:Bertec.CognitiveChoices.#ctor(System.Collections.Generic.List{Bertec.CognitiveChoiceItem},System.String)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Bertec.CognitiveChoices" /> class with a list of choices and a default.
+            </summary>
+      <param name="choices">The list of cognitive choices.</param>
+      <param name="defaultChoice">The default choice value.</param>
+    </member>
+    <member name="T:Bertec.CameraRotations">
+      <summary>
+            The available camera rotation modes.
             </summary>
     </member>
     <member name="T:Bertec.SceneFeatures">
@@ -439,6 +1361,21 @@
             If set, has a special panel of Cognitive Choices with sub-options/difficulties
             </summary>
     </member>
+    <member name="M:Bertec.SceneFeatures.AddKeypointVisualizer(System.String,System.String)">
+      <summary>
+            Adds a keypoint visualizer option.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneFeatures.AddKeypointVisualizer(System.String,System.String,Bertec.SceneChoices)">
+      <summary>
+            Adds a keypoint visualizer option with choices.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneFeatures.AddKeypointVisualizers(System.Collections.Generic.List{Bertec.KeyPointOption})">
+      <summary>
+            Adds multiple keypoint visualizer options.
+            </summary>
+    </member>
     <member name="T:Bertec.SceneProperty">
       <summary>
             SceneProperty items are list of things that the UI can set in the Scene.
@@ -457,6 +1394,16 @@
     <member name="F:Bertec.SceneEvent.IsTriggerableFromScene">
       <summary>
             If true, then the scene will trigger the ui with this event. The UI should allow the scene to control some action.
+            </summary>
+    </member>
+    <member name="T:Bertec.SceneOption">
+      <summary>
+            A scene option, including type, requirement, key, name, description, grouping, and choices.
+            </summary>
+    </member>
+    <member name="T:Bertec.SceneOption.OptionType">
+      <summary>
+            The type of option.
             </summary>
     </member>
     <member name="F:Bertec.SceneOption.OptionType.None">
@@ -556,6 +1503,56 @@
             Not used for the Title type.
             </summary>
     </member>
+    <member name="M:Bertec.SceneOption.#ctor(Bertec.SceneOption.OptionType,System.String,System.String,System.String)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Bertec.SceneOption" /> class with type, key, name, and description.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneOption.AddChoice(Bertec.SceneChoiceItem,System.Boolean)">
+      <summary>
+            Adds a choice to the option.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneOption.AddChoice(System.Object)">
+      <summary>
+            Adds a choice to the option.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneOption.AddChoice(System.Object,System.Object,System.Boolean)">
+      <summary>
+            Adds a choice to the option with key and name.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneOption.SetRange(System.Single,System.Single,System.Single,System.Single,Bertec.SceneOption.Decimals)">
+      <summary>
+            Sets a float range for the option.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneOption.SetRange(System.Int32,System.Int32,System.Int32,System.Int32)">
+      <summary>
+            Sets an integer range for the option.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneOption.SetDefault(Bertec.SceneChoiceItem)">
+      <summary>
+            Sets the default choice.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneOption.SetDefault(System.Object)">
+      <summary>
+            Sets the default choice.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneOption.SetDefault(System.Boolean)">
+      <summary>
+            Sets the default choice.
+            </summary>
+    </member>
+    <member name="T:Bertec.KeyPointOption">
+      <summary>
+            A keypoint visualizer option.
+            </summary>
+    </member>
     <member name="F:Bertec.KeyPointOption.Key">
       <summary>
             Required. The unique id that will be used to track the option and save/restore from database. Also used to send/return from the unity scene and pc UI.
@@ -576,6 +1573,51 @@
       <summary>
             Array of choices that will be displayed for the user to see.
             Choices will be shown in the same order as they appear in the array.
+            </summary>
+    </member>
+    <member name="M:Bertec.KeyPointOption.#ctor(System.String,System.String)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Bertec.KeyPointOption" /> class with key and name.
+            </summary>
+    </member>
+    <member name="M:Bertec.KeyPointOption.#ctor(System.String,System.String,Bertec.SceneChoices)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Bertec.KeyPointOption" /> class with key, name, and choices.
+            </summary>
+    </member>
+    <member name="M:Bertec.KeyPointOption.AddChoice(Bertec.SceneChoiceItem,System.Boolean)">
+      <summary>
+            Adds a choice to the keypoint option.
+            </summary>
+    </member>
+    <member name="M:Bertec.KeyPointOption.AddChoice(System.Object)">
+      <summary>
+            Adds a choice to the keypoint option.
+            </summary>
+    </member>
+    <member name="M:Bertec.KeyPointOption.AddChoice(System.Object,System.Object,System.Boolean)">
+      <summary>
+            Adds a choice to the keypoint option with key and name.
+            </summary>
+    </member>
+    <member name="M:Bertec.KeyPointOption.SetDefault(Bertec.SceneChoiceItem)">
+      <summary>
+            Sets the default choice.
+            </summary>
+    </member>
+    <member name="M:Bertec.KeyPointOption.SetDefault(System.Object)">
+      <summary>
+            Sets the default choice.
+            </summary>
+    </member>
+    <member name="M:Bertec.KeyPointOption.SetDefault(System.Boolean)">
+      <summary>
+            Sets the default choice.
+            </summary>
+    </member>
+    <member name="T:Bertec.SceneInfo">
+      <summary>
+            Represents information about a scene, including key, name, description, icon, features, options, events, and properties.
             </summary>
     </member>
     <member name="F:Bertec.SceneInfo.ScenePath">
@@ -642,6 +1684,70 @@
       <param name="key">The value to be used for the Key. This will be used to generate the ScenePath unless that is set explictly.</param>
       <param name="name">The value to be used for the Name.</param>
     </member>
+    <member name="M:Bertec.SceneInfo.#ctor(System.String,System.String,System.String)">
+      <summary>
+            Initializes a new instance of the <see cref="T:Bertec.SceneInfo" /> class with key, name, and scene file.
+            </summary>
+      <param name="key">The value to be used for the Key. This will be used to generate the ScenePath unless that is set explictly.</param>
+      <param name="name">The value to be used for the Name.</param>
+      <param name="scenefile">The path to the local project scene</param>
+    </member>
+    <member name="M:Bertec.SceneInfo.SetIconData(System.String)">
+      <summary>
+            Sets the icon data from a file.
+            </summary>
+      <param name="imageName">The image file name.</param>
+    </member>
+    <member name="M:Bertec.SceneInfo.AddOption(Bertec.SceneOption)">
+      <summary>
+            Adds an option to the scene.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneInfo.AddOption(Bertec.SceneOption.OptionType,System.String,System.String,System.String)">
+      <summary>
+            Adds an option to the scene.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneInfo.AddCheckbox(System.String,System.String,System.String)">
+      <summary>
+            Adds a checkbox option (SceneOption.OptionType.Checkbox) to the scene.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneInfo.AddList(System.String,System.String,System.Collections.Generic.List{Bertec.SceneChoiceItem},System.String)">
+      <summary>
+            Adds a list option to the scene.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneInfo.AddList(System.String,System.String,System.String,System.Collections.Generic.List{Bertec.SceneChoiceItem},System.String)">
+      <summary>
+            Adds a list option to the scene with description.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneInfo.AddList(System.String,System.String,System.String)">
+      <summary>
+            Adds a list option (SceneOption.OptionType.Choicelist) to the scene.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneInfo.AddRange(System.String,System.String,System.String,System.Single,System.Single,System.Single,System.Single,Bertec.SceneOption.Decimals)">
+      <summary>
+            Adds a float range option to the scene.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneInfo.AddRange(System.String,System.String,System.Single,System.Single,System.Single,System.Single,Bertec.SceneOption.Decimals)">
+      <summary>
+            Adds a float range option to the scene.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneInfo.AddRange(System.String,System.String,System.String,System.Int32,System.Int32,System.Int32,System.Int32)">
+      <summary>
+            Adds an integer range option to the scene with description.
+            </summary>
+    </member>
+    <member name="M:Bertec.SceneInfo.AddRange(System.String,System.String,System.Int32,System.Int32,System.Int32,System.Int32)">
+      <summary>
+            Adds an integer range option to the scene.
+            </summary>
+    </member>
     <member name="P:Bertec.SceneInfo.AKA">
       <summary>
             Returns a list of all the keys that can be used to identify this scene.
@@ -656,6 +1762,111 @@
             Tries to find the matching icon from the given key name. Used during the init/build phase to generate the optional icon
             </summary>
     </member>
+    <member name="P:Bertec.SceneInfo.IsValid">
+      <summary>
+            Gets whether the scene info is valid (has a key and name).
+            </summary>
+    </member>
+    <member name="T:Bertec.SceneInfoList">
+      <summary>
+            Represents a list of scene info objects and related metadata.
+            </summary>
+    </member>
+    <member name="F:Bertec.SceneInfoList.PackageName">
+      <summary>
+            The package name;set from Application.identifier
+            </summary>
+    </member>
+    <member name="F:Bertec.SceneInfoList.PackageVersion">
+      <summary>
+            The package version. Used to figure out if the installed package needs updated against the scene info.
+            </summary>
+    </member>
+    <member name="F:Bertec.SceneInfoList.ProductName">
+      <summary>
+            The product name; set from Application.productName
+            </summary>
+    </member>
+    <member name="F:Bertec.SceneInfoList.FrameworkVersion">
+      <summary>
+            The framework version.
+            </summary>
+    </member>
+    <member name="F:Bertec.SceneInfoList.FrameworkProtocol">
+      <summary>
+            The framework protocol version.
+            </summary>
+    </member>
+    <member name="F:Bertec.SceneInfoList.Scenes">
+      <summary>
+            The list of scenes.
+            </summary>
+    </member>
+    <member name="T:Bertec.ChangeSceneData">
+      <summary>
+            Data for changing scenes, including force reload, scene name, test GUID, and options.
+            </summary>
+    </member>
+    <member name="F:Bertec.ChangeSceneData.ForceReload">
+      <summary>
+            If true, forces the scene to reload.
+            </summary>
+    </member>
+    <member name="F:Bertec.ChangeSceneData.Scene">
+      <summary>
+            The scene to change to.
+            </summary>
+    </member>
+    <member name="F:Bertec.ChangeSceneData.TestGUID">
+      <summary>
+            The protocol GUID that is requesting the change.
+            </summary>
+    </member>
+    <member name="F:Bertec.ChangeSceneData.Options">
+      <summary>
+            Options to pass to the scene.
+            </summary>
+    </member>
+    <member name="T:Bertec.ChangeSceneResult">
+      <summary>
+            Result of a scene change operation.
+            </summary>
+    </member>
+    <member name="F:Bertec.ChangeSceneResult.Success">
+      <summary>
+            True if the scene change was successful.
+            </summary>
+    </member>
+    <member name="F:Bertec.ChangeSceneResult.PackageName">
+      <summary>
+            The package name.
+            </summary>
+    </member>
+    <member name="F:Bertec.ChangeSceneResult.Scene">
+      <summary>
+            The scene that was changed to.
+            </summary>
+    </member>
+    <member name="T:Bertec.CurrentSceneData">
+      <summary>
+            Data for the current scene, including package name, scene, and test GUID.
+            </summary>
+    </member>
+    <member name="F:Bertec.CurrentSceneData.PackageName">
+      <summary>
+            The package name.
+            </summary>
+    </member>
+    <member name="F:Bertec.CurrentSceneData.Scene">
+      <summary>
+            The current scene.
+            </summary>
+    </member>
+    <member name="F:Bertec.CurrentSceneData.TestGUID">
+      <summary>
+            The test GUID.
+            </summary>
+    </member>
     <member name="M:Bertec.SceneListManager.GetSceneInfoList(System.Boolean)">
       <summary>
             Retrieves a list of SceneInfo objects representing the scenes in the build settings. The build process uses this to generate the
@@ -664,17 +1875,338 @@
       <param name="resolvePaths">A boolean value indicating whether to resolve the scene paths. False for the build, true at runtime.</param>
       <returns>A list of SceneInfo objects.</returns>
     </member>
+    <member name="T:Bertec.SystemAudioDeviceManagerInterface">
+      <summary>
+            Interface for system audio device management, providing methods to get and set audio volume.
+            </summary>
+    </member>
+    <member name="M:Bertec.SystemAudioDeviceManagerInterface.GetAudioVolumeInfo(System.Int32@,System.Int32@,System.Int32@)">
+      <summary>
+            Gets the minimum, maximum, and current audio volume levels.
+            </summary>
+      <param name="_min">The minimum volume level.</param>
+      <param name="_max">The maximum volume level.</param>
+      <param name="_level">The current volume level.</param>
+    </member>
+    <member name="M:Bertec.SystemAudioDeviceManagerInterface.SetAudioVolumeLevel(System.Int32)">
+      <summary>
+            Sets the audio volume to the specified level.
+            </summary>
+      <param name="_newlevel">The new volume level to set.</param>
+    </member>
+    <member name="T:Bertec.SystemAudioDeviceManager">
+      <summary>
+            Methods and events for managing system audio device volume.
+            </summary>
+    </member>
+    <member name="E:Bertec.SystemAudioDeviceManager.AudioVolumeChanged">
+      <summary>
+            Event triggered when the audio volume changes.
+            </summary>
+      <param name="level">The new audio volume level.</param>
+    </member>
+    <member name="T:Bertec.SystemDisplayDeviceManagerInterface">
+      <summary>
+            Interface for system display device management, providing methods for passthrough, screen, and brightness control.
+            </summary>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManagerInterface.GetCurrentFPS">
+      <summary>
+            Gets the current frames per second.
+            </summary>
+      <returns>The current FPS.</returns>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManagerInterface.ResetHeadsetPosition">
+      <summary>
+            Resets the headset position. Does nothing on Windows
+            </summary>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManagerInterface.TurnOffPassthrough">
+      <summary>
+            Turns off passthrough mode.
+            </summary>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManagerInterface.GetPassthroughTrackingState">
+      <summary>
+            Gets the current passthrough tracking state.
+            </summary>
+      <returns>The passthrough tracking state.</returns>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManagerInterface.PassthroughChanged(System.Boolean)">
+      <summary>
+            Notifies that passthrough state has changed.
+            </summary>
+      <param name="nextPassthroughState">The new passthrough state.</param>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManagerInterface.EnableSeeThroughManual(System.Boolean)">
+      <summary>
+            Enables or disables see-through manually.
+            </summary>
+      <param name="f">True to enable, false to disable.</param>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManagerInterface.GetScreenOnOff(System.Boolean@)">
+      <summary>
+            Gets whether the screen is currently on.
+            </summary>
+      <param name="screenCurrentlyOn">True if the screen is on.</param>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManagerInterface.SetScreenOnOff(System.Boolean)">
+      <summary>
+            Sets the screen on or off.
+            </summary>
+      <param name="screenOn">True to turn on, false to turn off.</param>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManagerInterface.GetScreenBrightness(System.Int32@,System.Int32@,System.Int32@)">
+      <summary>
+            Gets the screen brightness range and current level.
+            </summary>
+      <param name="_min">Minimum brightness.</param>
+      <param name="_max">Maximum brightness.</param>
+      <param name="_level">Current brightness level.</param>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManagerInterface.SetScreenBrightness(System.Int32)">
+      <summary>
+            Sets the screen brightness.
+            </summary>
+      <param name="newlevel">The new brightness level.</param>
+    </member>
+    <member name="T:Bertec.SystemDisplayDeviceManager">
+      <summary>
+            Methods and events for managing system display device state, including passthrough, screen, and brightness.
+            </summary>
+    </member>
+    <member name="P:Bertec.SystemDisplayDeviceManager.PassThroughEnabled">
+      <summary>
+            Gets or sets whether passthrough is enabled.
+            </summary>
+    </member>
+    <member name="P:Bertec.SystemDisplayDeviceManager.IsPassthrough">
+      <summary>
+            Gets or sets whether passthrough is currently active.
+            </summary>
+    </member>
+    <member name="P:Bertec.SystemDisplayDeviceManager.ScreenCurrentlyOn">
+      <summary>
+            Gets or sets whether the screen is currently on.
+            </summary>
+    </member>
+    <member name="E:Bertec.SystemDisplayDeviceManager.OnPassThroughEnabled">
+      <summary>
+            Event triggered when passthrough is enabled or disabled.
+            </summary>
+      <param name="enabled">True if enabled, false if disabled.</param>
+    </member>
+    <member name="E:Bertec.SystemDisplayDeviceManager.OnPassthroughChanged">
+      <summary>
+            Event triggered when passthrough state changes.
+            </summary>
+      <param name="enabled">True if enabled, false if disabled.</param>
+    </member>
+    <member name="E:Bertec.SystemDisplayDeviceManager.OnEnableHeadsetPassthrough">
+      <summary>
+            Event triggered to enable headset passthrough.
+            </summary>
+      <param name="enabled">True to enable, false to disable.</param>
+    </member>
+    <member name="E:Bertec.SystemDisplayDeviceManager.OnResetHeadsetPosition">
+      <summary>
+            Event triggered to reset headset position.
+            </summary>
+    </member>
+    <member name="E:Bertec.SystemDisplayDeviceManager.BrightnessLevelChanged">
+      <summary>
+            Event triggered when brightness level changes.
+            </summary>
+      <param name="level">The new brightness level.</param>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManager.GetCurrentFPS">
+      <summary>
+            Gets the current frames per second.
+            </summary>
+      <returns>The current FPS.</returns>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManager.ResetHeadsetPosition">
+      <summary>
+            Resets the headset position (ignored on Windows).
+            </summary>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManager.TurnOffPassthrough">
+      <summary>
+            Turns off passthrough.
+            </summary>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManager.GetPassthroughTrackingState">
+      <summary>
+            Gets the current passthrough tracking state
+            </summary>
+      <returns>The passthrough tracking state.</returns>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManager.EnableHeadsetPassthrough(System.Boolean)">
+      <summary>
+            Sets the current passthrough state and triggers the OnEnableHeadsetPassthrough event.
+            </summary>
+      <param name="f">True to enable, false to disable.</param>
+    </member>
+    <member name="M:Bertec.SystemDisplayDeviceManager.EnableSeeThroughManual(System.Boolean)">
+      <summary>
+            Enables or disables see-through manually
+            </summary>
+      <param name="f">True to enable, false to disable.</param>
+    </member>
+    <member name="T:Bertec.Utils">
+      <summary>
+            Utility class providing helper methods for type conversion, color parsing, bounding calculations, and coroutine management.
+            </summary>
+    </member>
+    <member name="P:Bertec.Utils.currentTick">
+      <summary>
+            Gets the current tick count in milliseconds since the application started.
+            </summary>
+    </member>
+    <member name="M:Bertec.Utils.toBool(System.Object)">
+      <summary>
+            Converts an object to a boolean value.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <returns>True if the value is true, checked, or nonzero; otherwise, false.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toBool(System.Object,System.Boolean)">
+      <summary>
+            Converts an object to a boolean value, with a default fallback.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <param name="defaultValue">The default value if conversion fails.</param>
+      <returns>True if the value is true, checked, or nonzero; otherwise, the default value.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toSingle(System.Object)">
+      <summary>
+            Converts an object to a single-precision floating point value.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <returns>The converted float value, or 0.0f if conversion fails.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toSingle(System.Object,System.Single)">
+      <summary>
+            Converts an object to a single-precision floating point value, with a default fallback.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <param name="defaultValue">The default value if conversion fails.</param>
+      <returns>The converted float value, or the default value if conversion fails.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toInt(System.Object)">
+      <summary>
+            Converts an object to an integer value.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <returns>The converted integer value, or 0 if conversion fails.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toInt(System.Object,System.Int32)">
+      <summary>
+            Converts an object to an integer value, with a default fallback.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <param name="defaultValue">The default value if conversion fails.</param>
+      <returns>The converted integer value, or the default value if conversion fails.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toUnsigned64(System.Object)">
+      <summary>
+            Converts an object to an unsigned 64-bit integer value.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <returns>The converted ulong value, or 0 if conversion fails.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toUnsigned64(System.Object,System.UInt64)">
+      <summary>
+            Converts an object to an unsigned 64-bit integer value, with a default fallback.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <param name="defaultValue">The default value if conversion fails.</param>
+      <returns>The converted ulong value, or the default value if conversion fails.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toString(System.Object)">
+      <summary>
+            Converts an object to a string.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <returns>The string representation, or an empty string if conversion fails.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toLowerString(System.Object)">
+      <summary>
+            Converts an object to a lower-case string.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <returns>The lower-case string representation, or an empty string if conversion fails.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toCollection(System.Object)">
+      <summary>
+            Converts an object to a dictionary of string/object pairs.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <returns>A dictionary representation, or an empty dictionary if conversion fails.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toArray(System.Object)">
+      <summary>
+            Converts an object to a string array.
+            </summary>
+      <param name="o">The object to convert.</param>
+      <returns>The string array, or an empty array if conversion fails.</returns>
+    </member>
+    <member name="M:Bertec.Utils.toHex(System.Byte[])">
+      <summary>
+            Converts a byte array to a hexadecimal string.
+            </summary>
+      <param name="bytes">The byte array.</param>
+      <returns>The hexadecimal string.</returns>
+    </member>
+    <member name="M:Bertec.Utils.fromHex(System.String)">
+      <summary>
+            Converts a hexadecimal string to a byte array.
+            </summary>
+      <param name="hex">The hexadecimal string.</param>
+      <returns>The byte array.</returns>
+    </member>
+    <member name="M:Bertec.Utils.parseColor(System.String,UnityEngine.Color)">
+      <summary>
+            Parses a color string (hex or comma-separated) into a Unity Color.
+            </summary>
+      <param name="parm">The color string.</param>
+      <param name="val">The default color value.</param>
+      <returns>The parsed color.</returns>
+    </member>
+    <member name="M:Bertec.Utils.parseColor(System.String)">
+      <summary>
+            Parses a color string (hex or comma-separated) into a Unity Color.
+            </summary>
+      <param name="parm">The color string.</param>
+      <returns>The parsed color.</returns>
+    </member>
     <member name="M:Bertec.Utils.GetBoundingForGameObject(UnityEngine.GameObject,System.Boolean)">
-      <summary>Helper method to calculate the bounds of a game object and its children</summary>
+      <summary>
+            Calculates the bounds of a GameObject and its children.
+            </summary>
+      <param name="g">The GameObject.</param>
+      <param name="includeInactive">Whether to include inactive children.</param>
+      <returns>The calculated bounds.</returns>
     </member>
     <member name="M:Bertec.Utils.GetBoundingForGameObject(UnityEngine.GameObject,UnityEngine.Bounds[])">
       <summary>
-            Get the bounding box for the item
+            Calculates the bounding box for a GameObject given a list of child bounds.
             </summary>
+      <param name="g">The GameObject.</param>
+      <param name="lst">The list of bounds.</param>
+      <returns>The calculated bounds.</returns>
     </member>
     <member name="M:Bertec.Utils.GetBoundsForChildren(UnityEngine.GameObject,System.Boolean)">
       <summary>
-            Get the bounding boxes for this item's children; does not include itself
+            Gets the bounding boxes for a GameObject's children (does not include itself).
+            </summary>
+      <param name="g">The GameObject.</param>
+      <param name="includeInactive">Whether to include inactive children.</param>
+      <returns>An array of bounds for each child renderer.</returns>
+    </member>
+    <member name="T:Bertec.Utils.Coroutines">
+      <summary>
+            Coroutine helper methods.
             </summary>
     </member>
     <member name="M:Bertec.Utils.Coroutines.WaitForSeconds(System.Single,System.Boolean)">
@@ -788,6 +2320,53 @@
             </summary>
       <returns>
       </returns>
+    </member>
+    <member name="T:Bertec.FlowMovementSpeedData">
+      <summary>
+            Data representing the left and right belt speeds for visual flow movement.
+            </summary>
+    </member>
+    <member name="T:Bertec.VisualFlowMovementSpeed">
+      <summary>
+            Handles updates to the visual flow movement speed and provides event notification.
+            </summary>
+    </member>
+    <member name="E:Bertec.VisualFlowMovementSpeed.SpeedUpdated">
+      <summary>
+            Event triggered when the flow movement speed is updated.
+            </summary>
+      <param name="data">
+        <see cref="T:Bertec.FlowMovementSpeedData" /> The updated flow movement speed data.</param>
+    </member>
+    <member name="P:Bertec.VisualFlowMovementSpeed.CurrentFlowSpeed">
+      <summary>
+            Gets the current flow movement speed data.
+            </summary>
+    </member>
+    <member name="T:RuntimeConstants">
+      <summary>
+            Runtime constants for platform and build configuration detection.
+            </summary>
+    </member>
+    <member name="F:RuntimeConstants.UrpEnabled">
+      <summary>
+            Indicates whether the Universal Render Pipeline (URP) is enabled.
+            </summary>
+    </member>
+    <member name="F:RuntimeConstants.IL2CPP">
+      <summary>
+            Indicates whether the build is using IL2CPP scripting backend.
+            </summary>
+    </member>
+    <member name="F:RuntimeConstants.IsWindows">
+      <summary>
+            Indicates whether the application is running on Windows.
+            </summary>
+    </member>
+    <member name="F:RuntimeConstants.IsAndroid">
+      <summary>
+            Indicates whether the application is running on Android.
+            </summary>
     </member>
   </members>
 </doc>
