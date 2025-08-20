@@ -141,7 +141,6 @@ MonoBehaviour:
   Scene: {fileID: 0}
   XRRigMainCamera: {fileID: 0}
   AllowControlerButtonBypass: 1
-  DomeIdleImage: {fileID: 0}
 --- !u!1 &8844963876308033042
 GameObject:
   m_ObjectHideFlags: 0
@@ -259,7 +258,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3521230535374340068, guid: f0bf45bf645876b4591ba8a22f7bd348,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1249009222510827942}
+      addedObject: {fileID: 3704063146589786997}
   m_SourcePrefab: {fileID: 100100000, guid: f0bf45bf645876b4591ba8a22f7bd348, type: 3}
 --- !u!1 &2416378841715699368 stripped
 GameObject:
@@ -285,7 +284,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1249009222510827946}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1249009222510827942
+--- !u!114 &3704063146589786997
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -294,7 +293,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2416378842497099342}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ee8dd1042c84fa4fa2411e8c4ebcc01, type: 3}
+  m_Script: {fileID: 11500000, guid: cff2c58b4c82c374392d533b0f76d02f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   gradientTime: 5

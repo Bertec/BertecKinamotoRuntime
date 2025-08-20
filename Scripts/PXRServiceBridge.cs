@@ -124,9 +124,25 @@ namespace BertecHMD
 			}
 
 
-		
+			Bertec.PXRManager_Impl.CreatePicoPxrManager = (GameObject containerRig) =>
+			{
+				if (containerRig == null)
+				{
+					Debug.LogError("PXRServiceBridge.CreatePicoPxrManager: containerRig is null");
+					return null;
+				}
+				var realPxrManager = containerRig.AddComponent<Unity.XR.PXR.PXR_Manager>();
+				if (realPxrManager == null)
+				{
+					Debug.LogError("PXRServiceBridge.CreatePicoPxrManager: failed to add PXR_Manager component");
+				}
 
-	
+				Debug.Log("Unity.XR.PXR.PXR_Manager created");
+				return realPxrManager;
+			};
+
+
+
 		}
 
 
