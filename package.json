@@ -3,13 +3,13 @@
   "version": "1.0.12",
   "displayName": "BertecKinamotoRuntime",
   "unity": "2022.3",
-  "documentationUrl": "https://github.com/Bertec/BertecKinamotoRuntime/blob/main/Documentation/Kinamoto%203.0%20Scene%20Guide.pdf",
+  "documentationUrl": "https://github.com/Bertec/BertecKinamotoRuntime/blob/main/Documentation/Kinamoto%204.0%20Scene%20Guide.pdf",
   "changelogUrl": "https://github.com/Bertec/BertecKinamotoRuntime",
   "licensesUrl": "https://github.com/Bertec/BertecKinamotoRuntime",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.2.1",
     "com.unity.postprocessing": "3.4.0",
-    "com.unity.xr.picoxr": "https://github.com/Bertec/PicoUnitySDK.git#Dev"
+    "com.unity.xr.picoxr": "https://github.com/Bertec/PicoUnitySDK.git"
   },
   "keywords": [],
   "author": "Bertec Corporation",
