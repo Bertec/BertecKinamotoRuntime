@@ -172,7 +172,7 @@ namespace Bertec
 	public class PostProcessingLayerHelper_Impl : Bertec.IPostProcessingLayerHelper
 	{
 		// Registers this implementation as the post-processing layer helper for the framework.
-		[FrameworkInit(FrameworkInitType.RegisterObjectStructs), FrameworkInit(FrameworkInitType.PrebuildExec)]
+		[FrameworkInit(FrameworkInitType.BeforeAssemblies), FrameworkInit(FrameworkInitType.PrebuildExec)]
 		public static void Init()
 		{
 			Bertec.PostProcessingLayerHelper.Instance = new PostProcessingLayerHelper_Impl();

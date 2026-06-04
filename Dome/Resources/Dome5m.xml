@@ -3,7 +3,7 @@
 	<KeepUpdatingFinalPassCameras>True</KeepUpdatingFinalPassCameras>
 	<KeepUpdatingScreen>False</KeepUpdatingScreen>
 	<KeepUpdatingShaders>True</KeepUpdatingShaders>
-	<KeepUpdatingCameraArray>True</KeepUpdatingCameraArray>
+	<KeepUpdatingCameraArray>False</KeepUpdatingCameraArray>
 	<enableTiltWithBracketKeys>True</enableTiltWithBracketKeys>
 	<isGlobe>False</isGlobe>
 	<tilt>13</tilt>
@@ -21,7 +21,7 @@
 		<omnityGUIScale>1</omnityGUIScale>
 	</windowInfo>
 	<disableOmnity>False</disableOmnity>
-	<CameraArrayGUIExpanded>True</CameraArrayGUIExpanded>
+	<CameraArrayGUIExpanded>False</CameraArrayGUIExpanded>
 	<ScreenShapesGUIExpanded>True</ScreenShapesGUIExpanded>
 	<FinalPassCamerasGUIExpanded>True</FinalPassCamerasGUIExpanded>
 	<PerspectiveCamera>
@@ -33,7 +33,7 @@
 		<fovT>45.0050</fovT>
 		<fovB>45.0050</fovB>
 		<near>0.1000</near>
-		<far>650.0000</far>
+		<far>1000.0000</far>
 		<nearOrtho>-1.0000</nearOrtho>
 		<farOrtho>1.0000</farOrtho>
 		<matrixMode>Default</matrixMode>
@@ -59,7 +59,7 @@
 			<myRenderTextureFormat>Default</myRenderTextureFormat>
 			<wrapMode>Clamp</wrapMode>
 			<filterMode>Trilinear</filterMode>
-			<guiExpanded>True</guiExpanded>
+			<guiExpanded>False</guiExpanded>
 		</RenderTextureSettings>
 		<PostProcessOptions>
 			<type>ByLayerIndicies</type>
@@ -77,7 +77,7 @@
 		<fovT>45.0050</fovT>
 		<fovB>45.0050</fovB>
 		<near>0.5000</near>
-		<far>650.0000</far>
+		<far>1000.0000</far>
 		<nearOrtho>-1.0000</nearOrtho>
 		<farOrtho>1.0000</farOrtho>
 		<matrixMode>Default</matrixMode>
@@ -103,7 +103,7 @@
 			<myRenderTextureFormat>Default</myRenderTextureFormat>
 			<wrapMode>Clamp</wrapMode>
 			<filterMode>Trilinear</filterMode>
-			<guiExpanded>True</guiExpanded>
+			<guiExpanded>False</guiExpanded>
 		</RenderTextureSettings>
 		<PostProcessOptions>
 			<type>ByLayerIndicies</type>
@@ -121,7 +121,7 @@
 		<fovT>45.0050</fovT>
 		<fovB>45.0050</fovB>
 		<near>0.5000</near>
-		<far>650.0000</far>
+		<far>1000.0000</far>
 		<nearOrtho>-1.0000</nearOrtho>
 		<farOrtho>1.0000</farOrtho>
 		<matrixMode>Default</matrixMode>
@@ -147,7 +147,7 @@
 			<myRenderTextureFormat>Default</myRenderTextureFormat>
 			<wrapMode>Clamp</wrapMode>
 			<filterMode>Trilinear</filterMode>
-			<guiExpanded>True</guiExpanded>
+			<guiExpanded>False</guiExpanded>
 		</RenderTextureSettings>
 		<PostProcessOptions>
 			<type>ByLayerIndicies</type>
@@ -165,7 +165,7 @@
 		<fovT>45.0050</fovT>
 		<fovB>45.0050</fovB>
 		<near>0.5000</near>
-		<far>650.0000</far>
+		<far>1000.0000</far>
 		<nearOrtho>-1.0000</nearOrtho>
 		<farOrtho>1.0000</farOrtho>
 		<matrixMode>Default</matrixMode>
@@ -191,7 +191,7 @@
 			<myRenderTextureFormat>Default</myRenderTextureFormat>
 			<wrapMode>Clamp</wrapMode>
 			<filterMode>Trilinear</filterMode>
-			<guiExpanded>True</guiExpanded>
+			<guiExpanded>False</guiExpanded>
 		</RenderTextureSettings>
 		<PostProcessOptions>
 			<type>ByLayerIndicies</type>
@@ -209,7 +209,7 @@
 		<fovT>45.0050</fovT>
 		<fovB>45.0050</fovB>
 		<near>0.5000</near>
-		<far>650.0000</far>
+		<far>1000.0000</far>
 		<nearOrtho>-1.0000</nearOrtho>
 		<farOrtho>1.0000</farOrtho>
 		<matrixMode>Default</matrixMode>
@@ -235,7 +235,7 @@
 			<myRenderTextureFormat>Default</myRenderTextureFormat>
 			<wrapMode>Clamp</wrapMode>
 			<filterMode>Trilinear</filterMode>
-			<guiExpanded>True</guiExpanded>
+			<guiExpanded>False</guiExpanded>
 		</RenderTextureSettings>
 		<PostProcessOptions>
 			<type>ByLayerIndicies</type>

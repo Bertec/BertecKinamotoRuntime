@@ -129,17 +129,8 @@
     </member>
     <member name="F:Bertec.CameraContainer_Impl.WasUsingSkybox">
       <summary>
-            Indicates whether the camera was previously using the Skybox clear flag.
+            Tracks the scene's intended background state so temporary idle/passthrough overrides can restore it reliably.
             </summary>
-    </member>
-    <member name="F:Bertec.CameraContainer_Impl.PREV_COLOR">
-      <summary>
-            Stores the previous background color of the camera (needed for scenes like Starfield and used when returning from idle)
-            </summary>
-      <remarks>
-            Need to know previous background color of the Camera, especially for scenes like Starfield,
-            because background color can be changed and with returning from idle, it needs to keep the state
-            </remarks>
     </member>
     <member name="E:Bertec.CameraContainer_Impl.MainCameraAwake">
       <summary>
@@ -203,6 +194,11 @@
             Reverts the camera background color to the previous value and clear flags.
             </summary>
     </member>
+    <member name="M:Bertec.CameraContainer_Impl.SetTemporaryBackgroundOverride(UnityEngine.Color,System.Boolean)">
+      <summary>
+            Applies a temporary background override without replacing the scene's stored background state.
+            </summary>
+    </member>
     <member name="M:Bertec.CameraContainer_Impl.Start">
       <summary>
             Initializes the camera container, sets the base position, and subscribes to camera events. Called from Bertec.CameraContainer.Start
@@ -240,6 +236,12 @@
             Sets the camera position for a specific axis or all axes, enforcing camera limits.
             </summary>
       <param name="axispos">The axis and position value to set.</param>
+    </member>
+    <member name="M:Bertec.CameraContainer_Impl.RefreshBaseCameraPosition(Bertec.CameraPositionAxis)">
+      <summary>
+            Refreshes the camera-position baseline while preserving any active camera-position offset.
+            </summary>
+      <param name="axis">The axis whose baseline should be refreshed.</param>
     </member>
     <member name="M:Bertec.CameraContainer_Impl.EnforceCameraLimitX(System.Single)">
       <summary>
@@ -296,6 +298,12 @@
       <param name="resetAxis">
         <see cref="T:Bertec.SetCameraPositionValue" /> the axis to set and the new position for it.
             </param>
+    </member>
+    <member name="M:Bertec.CameraContainerCallbacks.RefreshBaseCameraPosition(Bertec.CameraPositionAxis)">
+      <summary>
+            Refreshes the active camera container's baseline for camera-position offsets.
+            </summary>
+      <param name="axis">The axis whose baseline should be refreshed.</param>
     </member>
     <member name="M:Bertec.CameraContainerCallbacks.Init">
       <summary>
@@ -518,6 +526,87 @@
             </summary>
       <param name="key">The key identifying the keypoint.</param>
       <param name="position">The new position of the keypoint as a <see cref="T:UnityEngine.Vector3" />.</param>
+    </member>
+    <member name="F:Bertec.LaunchApp.NativeActivityLauncher">
+      <summary>
+             Optional platform-native "startActivity" override used by the Android Loader to bypass Background
+             Activity Start (BAS) restrictions. When non-null, BertecHMD.LaunchAppImpl.RequestAppLaunch and
+             BertecHMD.LaunchAppImpl.HandleAppLauchRequestMessage will invoke this delegate before falling
+             back to a standard Activity.startActivity() call.
+            
+             On Pico Enterprise hardware (Pico 4 Enterprise / Pico Neo3 Pro on system 5.4.0+) the BertecHMD
+             package registers PicoEnterpriseLauncher.TryStartActivity here, which routes the launch
+             through system_server via the Pico Tob service (pbsStartActivity). This privileged path is not
+             subject to Android 10+ BAS, so the Loader can launch a scene APK even when its own Activity is
+             backgrounded.
+            
+             PARAMETER CONTRACT
+             ==================
+            
+               1. packageName          target APK package name. Always set.
+               2. className   (nullable) explicit activity class within the target; null means "let the
+                                        platform resolve the launcher activity".
+               3. action      (nullable) explicit Intent action override; null means "use the launcher
+                                        activity's default action".
+               4. extraJson             pre-serialized JSON payload built by the framework's invocation
+                                        site, NOT by the delegate's implementer. Implementers receive
+                                        this string and forward it to their platform launch API; they
+                                        do not construct it. The framework-internal builder
+                                        (BertecHMD.LaunchAppImpl) produces a payload of the following
+                                        shape, which is the canonical contract for the wrap:
+                                              {
+                                                "PackageName":           "...",
+                                                "ClassName":             "...",
+                                                "IntentAction":          "...",
+                                                "LaunchFlags":           0,
+                                                "BertecOptions":         "{options JSON, pre-serialised String}",
+                                                "BertecLaunchOriginator":"{originator package}"
+                                              }
+                                        This shape exists because Pico's pbsStartActivity (the privileged
+                                        startActivity surface in system_server) auto-deserialises whatever
+                                        JSON we give it and maps top-level primitive fields onto the new
+                                        activity's Intent as String/int extras, while DROPPING nested
+                                        Dictionary fields. By pre-serialising the Options dict to a String
+                                        under the top-level "BertecOptions" key, the receiver recovers it
+                                        intact via Intent.getStringExtra("BertecOptions") -- the form
+                                        BertecHMD.LaunchAppImpl.ApplyLaunchOptionsFromCurrentActivityIntent
+                                        expects on its fast path.
+               5. launchFlags           Android Intent flags to apply.
+            
+               Return:   true if the delegate is confident the launch was initiated. false to request the
+                         framework fall back to the standard startActivity() path. Throwing is treated as
+                         false (the framework logs the exception and falls back).
+            
+             IMPLEMENTERS: extraJson is provided by the caller. Forward it unchanged. If your privileged
+             launch API flattens the JSON into individual Intent extras (as Pico's pbsStartActivity does),
+             the BertecOptions String survives the flattening intact and the receiving APK's
+             ApplyLaunchOptionsFromCurrentActivityIntent picks it up via the fast path. There are two
+             defence-in-depth fallbacks on the receiving side as well -- a heuristic JSON-shaped extra
+             scan, and TryApplyFlattenedExtras which walks individual String extras -- so the wrap is
+             not strictly required for correctness in the all-String-options case, but it is the only
+             shape that preserves non-String option types (ints, bools) end-to-end. The framework-internal
+             builder is the single source of truth for the shape; external implementers should not need
+             to construct it.
+             </summary>
+    </member>
+    <member name="F:Bertec.LaunchApp.NativeScenePackageLaunchedNotification">
+      <summary>
+             Optional notification fired by the launch orchestrator after a scene package launch has
+             initiated successfully via EITHER the privileged NativeActivityLauncher path OR the
+             standard Activity.startActivity fallback. The platform-side launcher (e.g.
+             BertecHMD.PicoEnterpriseLauncher) hooks this to update its "currently running scene"
+             tracker, which is consulted on the next launch to force-quit the prior scene before the
+             new one comes up (FEAT_SINGLE3D dialog suppression on Pico).
+            
+             Plumbed through the framework as a delegate (rather than called directly from the
+             launcher implementation) so the core framework assembly does not need to reference the
+             platform-specific PXR assembly -- that direction would create a cycle. PXR-side
+             registration happens in PicoEnterpriseLauncher.Register alongside the NativeActivityLauncher
+             wiring.
+            
+             Argument: the package name that was just launched. Null/empty values should be ignored
+             by the registered handler.
+             </summary>
     </member>
     <member name="T:Bertec.SingleMarkerTrackerPosition">
       <summary>
@@ -2314,13 +2403,6 @@
             </summary>
       <param name="id">Id of the coroutine to unpause.</param>
     </member>
-    <member name="M:Bertec.VideoStreamer.Start">
-      <summary>
-            Starts listening for the stream start/stop commands to be issued. Called this from VideoStreamerContainer_Impl
-            </summary>
-      <returns>
-      </returns>
-    </member>
     <member name="T:Bertec.FlowMovementSpeedData">
       <summary>
             Data representing the left and right belt speeds for visual flow movement.
@@ -2366,6 +2448,443 @@
     <member name="F:RuntimeConstants.IsAndroid">
       <summary>
             Indicates whether the application is running on Android.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.Internal.ArrayUtil.Materialize``1(System.Collections.Generic.IEnumerable{``0})">
+      <summary>
+            Optimizing utility to avoid .ToArray() that creates buffer copy(cut to just size).
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.TaskTracker.ForEachActiveTask(System.Action{System.Int32,System.String,Cysharp.Threading.Tasks.UniTaskStatus,System.DateTime,System.String})">
+      <summary>(trackingId, awaiterType, awaiterStatus, createdTime, stackTrace)</summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.UniTaskStatus.Pending">
+      <summary>The operation has not yet completed.</summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.UniTaskStatus.Succeeded">
+      <summary>The operation completed successfully.</summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.UniTaskStatus.Faulted">
+      <summary>The operation completed with an error.</summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.UniTaskStatus.Canceled">
+      <summary>The operation completed due to cancellation.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskStatusExtensions.IsCompleted(Cysharp.Threading.Tasks.UniTaskStatus)">
+      <summary>status != Pending.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskStatusExtensions.IsCompletedSuccessfully(Cysharp.Threading.Tasks.UniTaskStatus)">
+      <summary>status == Succeeded.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskStatusExtensions.IsCanceled(Cysharp.Threading.Tasks.UniTaskStatus)">
+      <summary>status == Canceled.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskStatusExtensions.IsFaulted(Cysharp.Threading.Tasks.UniTaskStatus)">
+      <summary>status == Faulted.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.Linq.UniTaskAsyncEnumerable.ForEachAsync``1(Cysharp.Threading.Tasks.IUniTaskAsyncEnumerable{``0},System.Func{``0,Cysharp.Threading.Tasks.UniTask},System.Threading.CancellationToken)">
+      <summary>Obsolete(Error), Use Use ForEachAwaitAsync instead.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.Linq.UniTaskAsyncEnumerable.ForEachAsync``1(Cysharp.Threading.Tasks.IUniTaskAsyncEnumerable{``0},System.Func{``0,System.Int32,Cysharp.Threading.Tasks.UniTask},System.Threading.CancellationToken)">
+      <summary>Obsolete(Error), Use Use ForEachAwaitAsync instead.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.Linq.AsyncEnumeratorBase`2.TryMoveNextCore(System.Boolean,System.Boolean@)">
+      <summary>
+            If return value is false, continue source.MoveNext.
+            </summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.InjectPlayerLoopTimings.All">
+      <summary>
+            Preset: All loops(default).
+            </summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.InjectPlayerLoopTimings.Standard">
+      <summary>
+            Preset: All without last except LastPostLateUpdate.
+            </summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.InjectPlayerLoopTimings.Minimum">
+      <summary>
+            Preset: Minimum pattern, Update | FixedUpdate | LastPostLateUpdate
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.PlayerLoopTimer.Restart">
+      <summary>
+            Restart(Reset and Start) timer.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.PlayerLoopTimer.Restart(System.TimeSpan)">
+      <summary>
+            Restart(Reset and Start) and change interval.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.PlayerLoopTimer.Stop">
+      <summary>
+            Stop timer.
+            </summary>
+    </member>
+    <member name="T:Cysharp.Threading.Tasks.Progress">
+      <summary>
+            Lightweight IProgress[T] factory.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.Triggers.AsyncTriggerExtensions.OnDestroyAsync(UnityEngine.GameObject)">
+      <summary>This function is called when the MonoBehaviour will be destroyed.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.Triggers.AsyncTriggerExtensions.OnDestroyAsync(UnityEngine.Component)">
+      <summary>This function is called when the MonoBehaviour will be destroyed.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskCancellationExtensions.GetCancellationTokenOnDestroy(UnityEngine.MonoBehaviour)">
+      <summary>This CancellationToken is canceled when the MonoBehaviour will be destroyed.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskCancellationExtensions.GetCancellationTokenOnDestroy(UnityEngine.GameObject)">
+      <summary>This CancellationToken is canceled when the MonoBehaviour will be destroyed.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskCancellationExtensions.GetCancellationTokenOnDestroy(UnityEngine.Component)">
+      <summary>This CancellationToken is canceled when the MonoBehaviour will be destroyed.</summary>
+    </member>
+    <member name="T:Cysharp.Threading.Tasks.UniTask">
+      <summary>
+            Lightweight unity specified task-like object.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.SuppressCancellationThrow">
+      <summary>
+            returns (bool IsCanceled) instead of throws OperationCanceledException.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Preserve">
+      <summary>
+            Memoizing inner IValueTaskSource. The result UniTask can await multiple.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Awaiter.SourceOnCompleted(System.Action{System.Object},System.Object)">
+      <summary>
+            If register manually continuation, you can use it instead of for compiler OnCompleted methods.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.NextFrame">
+      <summary>
+            Similar as UniTask.Yield but guaranteed run on next frame.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.NextFrame(Cysharp.Threading.Tasks.PlayerLoopTiming)">
+      <summary>
+            Similar as UniTask.Yield but guaranteed run on next frame.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.NextFrame(System.Threading.CancellationToken,System.Boolean)">
+      <summary>
+            Similar as UniTask.Yield but guaranteed run on next frame.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.NextFrame(Cysharp.Threading.Tasks.PlayerLoopTiming,System.Threading.CancellationToken,System.Boolean)">
+      <summary>
+            Similar as UniTask.Yield but guaranteed run on next frame.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.WaitForFixedUpdate">
+      <summary>
+            Same as UniTask.Yield(PlayerLoopTiming.LastFixedUpdate).
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.WaitForFixedUpdate(System.Threading.CancellationToken,System.Boolean)">
+      <summary>
+            Same as UniTask.Yield(PlayerLoopTiming.LastFixedUpdate, cancellationToken).
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Void(System.Func{Cysharp.Threading.Tasks.UniTaskVoid})">
+      <summary>
+            helper of fire and forget void action.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Void(System.Func{System.Threading.CancellationToken,Cysharp.Threading.Tasks.UniTaskVoid},System.Threading.CancellationToken)">
+      <summary>
+            helper of fire and forget void action.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Void``1(System.Func{``0,Cysharp.Threading.Tasks.UniTaskVoid},``0)">
+      <summary>
+            helper of fire and forget void action.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Action(System.Func{Cysharp.Threading.Tasks.UniTaskVoid})">
+      <summary>
+            helper of create add UniTaskVoid to delegate.
+            For example: FooAction = UniTask.Action(async () =&gt; { /* */ })
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Action(System.Func{System.Threading.CancellationToken,Cysharp.Threading.Tasks.UniTaskVoid},System.Threading.CancellationToken)">
+      <summary>
+            helper of create add UniTaskVoid to delegate.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Action``1(``0,System.Func{``0,Cysharp.Threading.Tasks.UniTaskVoid})">
+      <summary>
+            helper of create add UniTaskVoid to delegate.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.UnityAction(System.Func{Cysharp.Threading.Tasks.UniTaskVoid})">
+      <summary>
+            Create async void(UniTaskVoid) UnityAction.
+            For example: onClick.AddListener(UniTask.UnityAction(async () =&gt; { /* */ } ))
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.UnityAction(System.Func{System.Threading.CancellationToken,Cysharp.Threading.Tasks.UniTaskVoid},System.Threading.CancellationToken)">
+      <summary>
+            Create async void(UniTaskVoid) UnityAction.
+            For example: onClick.AddListener(UniTask.UnityAction(FooAsync, this.GetCancellationTokenOnDestroy()))
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.UnityAction``1(``0,System.Func{``0,Cysharp.Threading.Tasks.UniTaskVoid})">
+      <summary>
+            Create async void(UniTaskVoid) UnityAction.
+            For example: onClick.AddListener(UniTask.UnityAction(FooAsync, Argument))
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.UnityAction``1(System.Func{``0,Cysharp.Threading.Tasks.UniTaskVoid})">
+      <summary>
+            Create async void(UniTaskVoid) UnityAction.
+            For example: onClick.AddListener(UniTask.UnityAction(async (T arg) =&gt; { /* */ } ))
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.UnityAction``2(System.Func{``0,``1,Cysharp.Threading.Tasks.UniTaskVoid})">
+      <summary>
+            Create async void(UniTaskVoid) UnityAction.
+            For example: onClick.AddListener(UniTask.UnityAction(async (T0 arg0, T1 arg1) =&gt; { /* */ } ))
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.UnityAction``3(System.Func{``0,``1,``2,Cysharp.Threading.Tasks.UniTaskVoid})">
+      <summary>
+            Create async void(UniTaskVoid) UnityAction.
+            For example: onClick.AddListener(UniTask.UnityAction(async (T0 arg0, T1 arg1, T2 arg2) =&gt; { /* */ } ))
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.UnityAction``4(System.Func{``0,``1,``2,``3,Cysharp.Threading.Tasks.UniTaskVoid})">
+      <summary>
+            Create async void(UniTaskVoid) UnityAction.
+            For example: onClick.AddListener(UniTask.UnityAction(async (T0 arg0, T1 arg1, T2 arg2, T3 arg3) =&gt; { /* */ } ))
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.UnityAction``1(System.Func{``0,System.Threading.CancellationToken,Cysharp.Threading.Tasks.UniTaskVoid},System.Threading.CancellationToken)">
+      <summary>
+            Create async void(UniTaskVoid) UnityAction.
+            For example: onClick.AddListener(UniTask.UnityAction(async (T arg, CancellationToken cancellationToken) =&gt; { /* */ } ))
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.UnityAction``2(System.Func{``0,``1,System.Threading.CancellationToken,Cysharp.Threading.Tasks.UniTaskVoid},System.Threading.CancellationToken)">
+      <summary>
+            Create async void(UniTaskVoid) UnityAction.
+            For example: onClick.AddListener(UniTask.UnityAction(async (T0 arg0, T1 arg1, CancellationToken cancellationToken) =&gt; { /* */ } ))
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.UnityAction``3(System.Func{``0,``1,``2,System.Threading.CancellationToken,Cysharp.Threading.Tasks.UniTaskVoid},System.Threading.CancellationToken)">
+      <summary>
+            Create async void(UniTaskVoid) UnityAction.
+            For example: onClick.AddListener(UniTask.UnityAction(async (T0 arg0, T1 arg1, T2 arg2, CancellationToken cancellationToken) =&gt; { /* */ } ))
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.UnityAction``4(System.Func{``0,``1,``2,``3,System.Threading.CancellationToken,Cysharp.Threading.Tasks.UniTaskVoid},System.Threading.CancellationToken)">
+      <summary>
+            Create async void(UniTaskVoid) UnityAction.
+            For example: onClick.AddListener(UniTask.UnityAction(async (T0 arg0, T1 arg1, T2 arg2, T3 arg3, CancellationToken cancellationToken) =&gt; { /* */ } ))
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Defer(System.Func{Cysharp.Threading.Tasks.UniTask})">
+      <summary>
+            Defer the task creation just before call await.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Defer``1(System.Func{Cysharp.Threading.Tasks.UniTask{``0}})">
+      <summary>
+            Defer the task creation just before call await.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Defer``1(``0,System.Func{``0,Cysharp.Threading.Tasks.UniTask})">
+      <summary>
+            Defer the task creation just before call await.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Defer``2(``0,System.Func{``0,Cysharp.Threading.Tasks.UniTask{``1}})">
+      <summary>
+            Defer the task creation just before call await.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Never(System.Threading.CancellationToken)">
+      <summary>
+            Never complete.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Never``1(System.Threading.CancellationToken)">
+      <summary>
+            Never complete.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.RunOnThreadPool(System.Action,System.Boolean,System.Threading.CancellationToken)">
+      <summary>Run action on the threadPool and return to main thread if configureAwait = true.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.RunOnThreadPool(System.Action{System.Object},System.Object,System.Boolean,System.Threading.CancellationToken)">
+      <summary>Run action on the threadPool and return to main thread if configureAwait = true.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.RunOnThreadPool(System.Func{Cysharp.Threading.Tasks.UniTask},System.Boolean,System.Threading.CancellationToken)">
+      <summary>Run action on the threadPool and return to main thread if configureAwait = true.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.RunOnThreadPool(System.Func{System.Object,Cysharp.Threading.Tasks.UniTask},System.Object,System.Boolean,System.Threading.CancellationToken)">
+      <summary>Run action on the threadPool and return to main thread if configureAwait = true.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.RunOnThreadPool``1(System.Func{``0},System.Boolean,System.Threading.CancellationToken)">
+      <summary>Run action on the threadPool and return to main thread if configureAwait = true.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.RunOnThreadPool``1(System.Func{Cysharp.Threading.Tasks.UniTask{``0}},System.Boolean,System.Threading.CancellationToken)">
+      <summary>Run action on the threadPool and return to main thread if configureAwait = true.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.RunOnThreadPool``1(System.Func{System.Object,``0},System.Object,System.Boolean,System.Threading.CancellationToken)">
+      <summary>Run action on the threadPool and return to main thread if configureAwait = true.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.RunOnThreadPool``1(System.Func{System.Object,Cysharp.Threading.Tasks.UniTask{``0}},System.Object,System.Boolean,System.Threading.CancellationToken)">
+      <summary>Run action on the threadPool and return to main thread if configureAwait = true.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.SwitchToMainThread(System.Threading.CancellationToken)">
+      <summary>
+            If running on mainthread, do nothing. Otherwise, same as UniTask.Yield(PlayerLoopTiming.Update).
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.SwitchToMainThread(Cysharp.Threading.Tasks.PlayerLoopTiming,System.Threading.CancellationToken)">
+      <summary>
+            If running on mainthread, do nothing. Otherwise, same as UniTask.Yield(timing).
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.ReturnToMainThread(System.Threading.CancellationToken)">
+      <summary>
+            Return to mainthread(same as await SwitchToMainThread) after using scope is closed.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.ReturnToMainThread(Cysharp.Threading.Tasks.PlayerLoopTiming,System.Threading.CancellationToken)">
+      <summary>
+            Return to mainthread(same as await SwitchToMainThread) after using scope is closed.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.Post(System.Action,Cysharp.Threading.Tasks.PlayerLoopTiming)">
+      <summary>
+            Queue the action to PlayerLoop.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.SwitchToTaskPool">
+      <summary>
+            Note: use SwitchToThreadPool is recommended.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.WhenAny(Cysharp.Threading.Tasks.UniTask[])">
+      <summary>Return value is winArgumentIndex</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask.WhenAny(System.Collections.Generic.IEnumerable{Cysharp.Threading.Tasks.UniTask})">
+      <summary>Return value is winArgumentIndex</summary>
+    </member>
+    <member name="T:Cysharp.Threading.Tasks.UniTask`1">
+      <summary>
+            Lightweight unity specified task-like object.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask`1.Preserve">
+      <summary>
+            Memoizing inner IValueTaskSource. The result UniTask can await multiple.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask`1.SuppressCancellationThrow">
+      <summary>
+            returns (bool IsCanceled, T Result) instead of throws OperationCanceledException.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTask`1.Awaiter.SourceOnCompleted(System.Action{System.Object},System.Object)">
+      <summary>
+            If register manually continuation, you can use it instead of for compiler OnCompleted methods.
+            </summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.DelayType.DeltaTime">
+      <summary>use Time.deltaTime.</summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.DelayType.UnscaledDeltaTime">
+      <summary>Ignore timescale, use Time.unscaledDeltaTime.</summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.DelayType.Realtime">
+      <summary>use Stopwatch.GetTimestamp().</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1.TrySetResult(`0)">
+      <summary>Completes with a successful result.</summary>
+      <param name="result">The result.</param>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1.TrySetException(System.Exception)">
+      <summary>Completes with an error.</summary>
+      <param name="error">The exception.</param>
+    </member>
+    <member name="P:Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1.Version">
+      <summary>Gets the operation version.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1.GetStatus(System.Int16)">
+      <summary>Gets the status of the operation.</summary>
+      <param name="token">Opaque value that was provided to the <see cref="T:Cysharp.Threading.Tasks.UniTask" />'s constructor.</param>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1.UnsafeGetStatus">
+      <summary>Gets the status of the operation without token validation.</summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1.GetResult(System.Int16)">
+      <summary>Gets the result of the operation.</summary>
+      <param name="token">Opaque value that was provided to the <see cref="T:Cysharp.Threading.Tasks.UniTask" />'s constructor.</param>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1.OnCompleted(System.Action{System.Object},System.Object,System.Int16)">
+      <summary>Schedules the continuation action for this operation.</summary>
+      <param name="continuation">The continuation to invoke when the operation has completed.</param>
+      <param name="state">The state object to pass to <paramref name="continuation" /> when it's invoked.</param>
+      <param name="token">Opaque value that was provided to the <see cref="T:Cysharp.Threading.Tasks.UniTask" />'s constructor.</param>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskExtensions.AsUniTask``1(System.Threading.Tasks.Task{``0},System.Boolean)">
+      <summary>
+            Convert Task[T] -&gt; UniTask[T].
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskExtensions.AsUniTask(System.Threading.Tasks.Task,System.Boolean)">
+      <summary>
+            Convert Task -&gt; UniTask.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskExtensions.AttachExternalCancellation(Cysharp.Threading.Tasks.UniTask,System.Threading.CancellationToken)">
+      <summary>
+            Ignore task result when cancel raised first.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskExtensions.AttachExternalCancellation``1(Cysharp.Threading.Tasks.UniTask{``0},System.Threading.CancellationToken)">
+      <summary>
+            Ignore task result when cancel raised first.
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskExtensions.TimeoutWithoutException(Cysharp.Threading.Tasks.UniTask,System.TimeSpan,Cysharp.Threading.Tasks.DelayType,Cysharp.Threading.Tasks.PlayerLoopTiming,System.Threading.CancellationTokenSource)">
+      <summary>
+            Timeout with suppress OperationCanceledException. Returns (bool, IsCanceled).
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskExtensions.TimeoutWithoutException``1(Cysharp.Threading.Tasks.UniTask{``0},System.TimeSpan,Cysharp.Threading.Tasks.DelayType,Cysharp.Threading.Tasks.PlayerLoopTiming,System.Threading.CancellationTokenSource)">
+      <summary>
+            Timeout with suppress OperationCanceledException. Returns (bool IsTimeout, T Result).
+            </summary>
+    </member>
+    <member name="M:Cysharp.Threading.Tasks.UniTaskObservableExtensions.ToObservable(Cysharp.Threading.Tasks.UniTask)">
+      <summary>
+            Ideally returns IObservabl[Unit] is best but Cysharp.Threading.Tasks does not have Unit so return AsyncUnit instead.
+            </summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.UniTaskScheduler.PropagateOperationCanceledException">
+      <summary>
+            Propagate OperationCanceledException to UnobservedTaskException when true. Default is false.
+            </summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.UniTaskScheduler.UnobservedExceptionWriteLogType">
+      <summary>
+            Write log type when catch unobserved exception and not registered UnobservedTaskException. Default is Exception.
+            </summary>
+    </member>
+    <member name="F:Cysharp.Threading.Tasks.UniTaskScheduler.DispatchUnityMainThread">
+      <summary>
+            Dispatch exception event to Unity MainThread. Default is true.
             </summary>
     </member>
   </members>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <OmnityInfo>
-	<KeepUpdatingFinalPassCameras>False</KeepUpdatingFinalPassCameras>
-	<KeepUpdatingScreen>True</KeepUpdatingScreen>
+	<KeepUpdatingFinalPassCameras>True</KeepUpdatingFinalPassCameras>
+	<KeepUpdatingScreen>False</KeepUpdatingScreen>
 	<KeepUpdatingShaders>True</KeepUpdatingShaders>
 	<KeepUpdatingCameraArray>False</KeepUpdatingCameraArray>
 	<enableTiltWithBracketKeys>True</enableTiltWithBracketKeys>
 	<isGlobe>False</isGlobe>
-	<tilt>0</tilt>
+	<tilt>5</tilt>
 	<yaw>0</yaw>
 	<roll>0</roll>
 	<windowInfo>
@@ -33,7 +33,7 @@
 		<fovT>45.0050</fovT>
 		<fovB>45.0050</fovB>
 		<near>0.1000</near>
-		<far>2000.0000</far>
+		<far>1000.0000</far>
 		<nearOrtho>-1.0000</nearOrtho>
 		<farOrtho>1.0000</farOrtho>
 		<matrixMode>Default</matrixMode>
@@ -77,7 +77,7 @@
 		<fovT>45.0050</fovT>
 		<fovB>45.0050</fovB>
 		<near>0.5000</near>
-		<far>2000.0000</far>
+		<far>1000.0000</far>
 		<nearOrtho>-1.0000</nearOrtho>
 		<farOrtho>1.0000</farOrtho>
 		<matrixMode>Default</matrixMode>
@@ -121,7 +121,7 @@
 		<fovT>45.0050</fovT>
 		<fovB>45.0050</fovB>
 		<near>0.1000</near>
-		<far>2000.0000</far>
+		<far>1000.0000</far>
 		<nearOrtho>-1.0000</nearOrtho>
 		<farOrtho>1.0000</farOrtho>
 		<matrixMode>Default</matrixMode>
@@ -131,7 +131,7 @@
 		<cullingMask>1073741823</cullingMask>
 		<guiExpanded>False</guiExpanded>
 		<automaticallyConnectTextures>True</automaticallyConnectTextures>
-		<followTilt>False</followTilt>
+		<followTilt>True</followTilt>
 		<targetEyeHint>Both</targetEyeHint>
 		<layer>0</layer>
 		<RenderTextureSettings>
@@ -165,7 +165,7 @@
 		<fovT>45.0050</fovT>
 		<fovB>45.0050</fovB>
 		<near>0.5000</near>
-		<far>2000.0000</far>
+		<far>1000.0000</far>
 		<nearOrtho>-1.0000</nearOrtho>
 		<farOrtho>1.0000</farOrtho>
 		<matrixMode>Default</matrixMode>
@@ -209,7 +209,7 @@
 		<fovT>45.0050</fovT>
 		<fovB>45.0050</fovB>
 		<near>0.5000</near>
-		<far>2000.0000</far>
+		<far>1000.0000</far>
 		<nearOrtho>-1.0000</nearOrtho>
 		<farOrtho>1.0000</farOrtho>
 		<matrixMode>Default</matrixMode>

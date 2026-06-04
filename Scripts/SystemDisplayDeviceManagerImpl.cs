@@ -15,12 +15,15 @@ namespace BertecHMD
 	{
 		// Copied from the PassThroughViewContainer in MonoStart
 		private GameObject Scene = null;
+		private bool AffectSceneOnPassthroughToggle = true;
 		private Camera XRRigMainCamera = null;
 		private bool AllowControlerButtonBypass = true;
 
 		private CameraClearFlags orignalMainCamClearFlags;   // initial states so can be reset when passthrough is toggled.
 		private Color orignalMainCamBackgroundColor;
 		private int _needPassChange = 0;
+		private bool _cameraBackgroundChangeSubscribed = false;
+		private static readonly Color PassthroughMainCamBackgroundColor = new Color(0f, 0f, 0f, 0f);
 
 		// A simple button reader for the passthrough to track the x/a buttons as press-release
 		private class ButtonReader
@@ -31,7 +34,10 @@ namespace BertecHMD
 				{
 					controllerDevice = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(isRightController ? UnityEngine.XR.XRNode.RightHand : UnityEngine.XR.XRNode.LeftHand);
 					if (!controllerDevice.isValid && !UnityEngine.Application.isEditor)
-						Debug.LogErrorFormat("SystemDisplayDeviceManagerImpl unable to get {0} controller", isRightController ? "right" : "left");
+					{
+						string s = isRightController ? "right" : "left";
+						Bertec.ExDebug.LogError($"SystemDisplayDeviceManagerImpl unable to get {s} controller");
+					}
 				});
 			}
 
@@ -62,7 +68,7 @@ namespace BertecHMD
 
 		internal static void Init()
 		{
-			Debug.Log("HMD SystemDisplayDeviceManagerImpl.Init");
+			Bertec.ExDebug.Log("HMD SystemDisplayDeviceManagerImpl.Init");
 			Bertec.SystemDisplayDeviceManager.managerInterface = new BertecHMD.SystemDisplayDeviceManagerImpl();
 			Bertec.SystemDisplayDeviceManager.interfaceRequiresMainThread = true;
 			Bertec.SystemDisplayDeviceManager.OnEnableHeadsetPassthrough += _EnableHeadsetPassthrough;
@@ -121,7 +127,7 @@ namespace BertecHMD
 		}
 
 		// Called from the PassThroughViewContainer.Start
-		public void MonoStart(GameObject _scene, Camera _xrRigMainCamera, bool _allowControlerButtonBypass)
+		public void MonoStart(GameObject _scene, bool _affectSceneOnPassthroughToggle, Camera _xrRigMainCamera, bool _allowControlerButtonBypass)
 		{
 			_needPassChange = 0;
 
@@ -129,17 +135,21 @@ namespace BertecHMD
 
 			Scene = _scene;
 			if (Scene == null)
+			{
 				Scene = GameObject.Find("MainScene");
+			}
+
+			// Central PassthroughRuntimeController now manages render suppression; keep the scene active to avoid GPU flushes.
+			AffectSceneOnPassthroughToggle = _affectSceneOnPassthroughToggle;
 
 			XRRigMainCamera = _xrRigMainCamera;
 			if (XRRigMainCamera == null)
-				XRRigMainCamera = FindXRRigMainCamera();
-
-			if (XRRigMainCamera != null)
 			{
-				orignalMainCamClearFlags = XRRigMainCamera.clearFlags;
-				orignalMainCamBackgroundColor = XRRigMainCamera.backgroundColor;
+				XRRigMainCamera = FindXRRigMainCamera();
 			}
+
+			CacheCurrentMainCameraState();
+			EnsureMainCameraBackgroundTracking();
 
 			leftButton = new ButtonReader(false);
 			rightButton = new ButtonReader(true);
@@ -158,8 +168,11 @@ namespace BertecHMD
 				--_needPassChange;
 				if (_needPassChange == 0)
 				{
-					Debug.Log("About to turn off scene, PassthroughTrackingState = " + GetPassthroughTrackingState());
-					Scene?.SetActive(false);   // hide the scene in a bit
+					Bertec.ExDebug.Log("About to turn off scene, PassthroughTrackingState = " + GetPassthroughTrackingState());
+					if (AffectSceneOnPassthroughToggle)
+					{
+						Scene?.SetActive(false);   // hide the scene in a bit
+					}
 				}
 			}
 
@@ -179,19 +192,12 @@ namespace BertecHMD
 			{
 				try
 				{
-					Debug.Log("Changing passthrough mode to " + Bertec.SystemDisplayDeviceManager.PassThroughEnabled);
+					Bertec.ExDebug.Log("Changing passthrough mode to " + Bertec.SystemDisplayDeviceManager.PassThroughEnabled);
 
 					if (!Bertec.SystemDisplayDeviceManager.IsPassthrough)
 					{
-						// check to make sure nobody changed the colors on us
-						if (XRRigMainCamera != null)
-						{
-							if (orignalMainCamClearFlags != XRRigMainCamera.clearFlags ||
-									orignalMainCamBackgroundColor != XRRigMainCamera.backgroundColor)
-							{
-								Debug.LogError("Apparent failure to call CameraColorsChanged; passthrough may not render correctly");
-							}
-						}
+						// Refresh the baseline from the active scene camera before passthrough is applied.
+						CacheCurrentMainCameraState();
 					}
 
 					Bertec.SystemDisplayDeviceManager.IsPassthrough = Bertec.SystemDisplayDeviceManager.PassThroughEnabled;
@@ -199,23 +205,35 @@ namespace BertecHMD
 					// the ordering of the calls is important to avoid ugly scene flickering; set the background/skybox first, then disable the scene, then set the passthrough
 					if (XRRigMainCamera != null)
 					{
-						// Switch the clear flags and color (passthrough needs solid color and zero alpha)
-						Color passthroughMainCamBackgroundColor = orignalMainCamBackgroundColor; // keep the scene's current color to minimize visual flicker
-						passthroughMainCamBackgroundColor.a = 0; // the alpha is the important bit; the rbg values are used only for inital clear (so we get a stupid flash)
-
-						XRRigMainCamera.backgroundColor = Bertec.SystemDisplayDeviceManager.IsPassthrough ? passthroughMainCamBackgroundColor : orignalMainCamBackgroundColor;
-						XRRigMainCamera.clearFlags = Bertec.SystemDisplayDeviceManager.IsPassthrough ? CameraClearFlags.SolidColor : orignalMainCamClearFlags;
+						if (Bertec.SystemDisplayDeviceManager.IsPassthrough)
+						{
+							// Pico passthrough requires a solid clear with transparent black.
+							XRRigMainCamera.backgroundColor = PassthroughMainCamBackgroundColor;
+							XRRigMainCamera.clearFlags = CameraClearFlags.SolidColor;
+						}
+						else
+						{
+							XRRigMainCamera.clearFlags = orignalMainCamClearFlags;
+							XRRigMainCamera.backgroundColor = orignalMainCamBackgroundColor;
+						}
 					}
 
 					if (Bertec.SystemDisplayDeviceManager.IsPassthrough)
+					{
 						_needPassChange = 5;   // it takes about 5 frames for the cameras to turn on
+					}
 					else
-						Scene?.SetActive(true);
+					{
+						_needPassChange = 0; // cancel any pending scene-hide from a previous enter
+						if (AffectSceneOnPassthroughToggle)
+						{
+							Scene?.SetActive(true);
+						}
+					}
 
-
-					Debug.Log("About to change passthrough mode, PassthroughTrackingState = " + GetPassthroughTrackingState());
+					Bertec.ExDebug.Log("About to change passthrough mode, PassthroughTrackingState = " + GetPassthroughTrackingState());
 					Bertec.SystemDisplayDeviceManager.EnableHeadsetPassthrough(Bertec.SystemDisplayDeviceManager.IsPassthrough);
-					Debug.Log("EnableHeadsetPassthrough called, PassthroughTrackingState = " + GetPassthroughTrackingState());
+					Bertec.ExDebug.Log("EnableHeadsetPassthrough called, PassthroughTrackingState = " + GetPassthroughTrackingState());
 
 					// Echo back the new setting
 					Bertec.ProtocolRPC.IssueCommand(Bertec.RPCCommands.Cmd.PASSTHROUGHCHANGED,
@@ -225,7 +243,7 @@ namespace BertecHMD
 				catch (System.Exception ex)
 				{
 					Debug.LogException(ex);
-					Debug.LogError("Exception when switching passthrough, trying to revert back without passthrough");
+					Bertec.ExDebug.LogError("Exception when switching passthrough, trying to revert back without passthrough");
 
 					TurnOffPassthrough();
 				}
@@ -239,10 +257,14 @@ namespace BertecHMD
 			{
 				if (XRRigMainCamera != null)
 				{
-					XRRigMainCamera.backgroundColor = orignalMainCamBackgroundColor;
 					XRRigMainCamera.clearFlags = orignalMainCamClearFlags;
+					XRRigMainCamera.backgroundColor = orignalMainCamBackgroundColor;
 				}
-				Scene?.SetActive(true);
+
+				if (AffectSceneOnPassthroughToggle)
+				{
+					Scene?.SetActive(true);
+				}
 
 				Bertec.SystemDisplayDeviceManager.EnableHeadsetPassthrough(false);
 				Bertec.ProtocolRPC.IssueCommand(Bertec.RPCCommands.Cmd.PASSTHROUGHCHANGED,
@@ -255,7 +277,7 @@ namespace BertecHMD
 			catch (System.Exception ex2)
 			{
 				Debug.LogException(ex2);
-				Debug.LogError("Exception when reverting passthrough, don't know how to proceed");
+				Bertec.ExDebug.LogError("Exception when reverting passthrough, don't know how to proceed");
 			}
 		}
 
@@ -272,7 +294,25 @@ namespace BertecHMD
 
 		public void EnableSeeThroughManual(bool f)
 		{
-			PXR_Boundary.EnableSeeThroughManual(f);
+			// Keep this legacy entry point from bypassing the framework state machine.
+			// Older scene scripts used to call the Pico API directly from LateUpdate, which could leave
+			// requested state, active state, and camera-layer restoration disagreeing with each other.
+			if (f)
+			{
+				// Do not call PXR_Boundary.EnableSeeThroughManual(true) here.
+				// MonoUpdate owns the ordered transition: cache camera state, set transparent clear,
+				// update IsPassthrough, notify render subscribers, then touch the Pico passthrough API.
+				// Enabling the hardware directly skips those steps and can leave the scene rendering
+				// only the passthrough/UI layer after exit.
+				if (!Bertec.SystemDisplayDeviceManager.PassThroughEnabled)
+				{
+					Bertec.SystemDisplayDeviceManager.PassThroughEnabled = true;
+				}
+
+				return;
+			}
+
+			TurnOffPassthrough();
 		}
 
 		protected static void _EnableHeadsetPassthrough(bool enable)
@@ -283,8 +323,8 @@ namespace BertecHMD
 			}
 			catch (System.Exception ex)
 			{
-				UnityEngine.Debug.LogException(ex);
-				UnityEngine.Debug.LogError("Exception when trying to set the passthrough flag to " + enable);
+				Debug.LogException(ex);
+				Bertec.ExDebug.LogError("Exception when trying to set the passthrough flag to " + enable);
 			}
 			Bertec.SystemDisplayDeviceManager.PassthroughChanged(enable);
 		}
@@ -292,7 +332,7 @@ namespace BertecHMD
 		public void SetScreenOnOff(bool screenon)
 		{
 			bool currentState = IsScreenOn();
-			Debug.Log("+++ IsScreenOn returned " + currentState);
+			Bertec.ExDebug.Log("+++ IsScreenOn returned " + currentState);
 			if (screenon != currentState)  // try to prevent cycling
 			{
 				if (screenon)
@@ -321,6 +361,8 @@ namespace BertecHMD
 
 		internal static bool IsScreenOn()
 		{
+			if (Application.isEditor)
+				return true;
 			try
 			{
 				if (BertecHMD.CurrentAndroidActivity.Valid)
@@ -329,14 +371,14 @@ namespace BertecHMD
 					{
 						if (displayManager == null)
 						{
-							Debug.LogError("Unable to getSystemService display");
+							Bertec.ExDebug.LogError("Unable to getSystemService display");
 							return false;
 						}
 
 						var displays = displayManager.Call<AndroidJavaObject>("getDisplays");
 						if (displays == null)
 						{
-							Debug.LogError("Unable to getDisplays");
+							Bertec.ExDebug.LogError("Unable to getDisplays");
 							return false;
 						}
 
@@ -345,7 +387,7 @@ namespace BertecHMD
 						int length = AndroidJNI.GetArrayLength(displaysArray);
 						if (length == 0)
 						{
-							Debug.LogError("getDisplays returned empty array");
+							Bertec.ExDebug.LogError("getDisplays returned empty array");
 							return false;
 						}
 
@@ -369,9 +411,49 @@ namespace BertecHMD
 			}
 			catch (System.Exception ex)
 			{
-				Debug.LogError("Exception with IsScreenOn " + ex.ToString());
+				Bertec.ExDebug.LogError("Exception with IsScreenOn " + ex.ToString());
 				return false;
 			}
+		}
+
+		private void CacheCurrentMainCameraState()
+		{
+			if (XRRigMainCamera == null)
+			{
+				return;
+			}
+
+			orignalMainCamClearFlags = XRRigMainCamera.clearFlags;
+			orignalMainCamBackgroundColor = XRRigMainCamera.backgroundColor;
+		}
+
+		private void EnsureMainCameraBackgroundTracking()
+		{
+			if (_cameraBackgroundChangeSubscribed)
+			{
+				return;
+			}
+
+			Bertec.CameraContainer_Impl.CameraBackgroundColorChanged += HandleMainCameraBackgroundColorChanged;
+			_cameraBackgroundChangeSubscribed = true;
+		}
+
+		private void HandleMainCameraBackgroundColorChanged(Color color, bool revertClearFlagsToSkybox)
+		{
+			CameraClearFlags clearFlags = revertClearFlagsToSkybox
+				? CameraClearFlags.Skybox
+				: CameraClearFlags.SolidColor;
+
+			orignalMainCamClearFlags = clearFlags;
+			orignalMainCamBackgroundColor = color;
+
+			if (XRRigMainCamera == null || Bertec.SystemDisplayDeviceManager.IsPassthrough)
+			{
+				return;
+			}
+
+			XRRigMainCamera.clearFlags = clearFlags;
+			XRRigMainCamera.backgroundColor = color;
 		}
 	}
 }

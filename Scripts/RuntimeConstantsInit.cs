@@ -8,7 +8,7 @@ namespace Bertec
 		/// <summary>
 		/// Initializes the <see cref="RuntimeConstants"/> values based on the current build platform and scripting backend.
 		/// </summary>
-		[FrameworkInit(FrameworkInitType.RegisterObjectStructs), FrameworkInit(FrameworkInitType.PrebuildExec)]
+		[FrameworkInit(FrameworkInitType.RegisterObjectStructs), FrameworkInit(FrameworkInitType.PrebuildExec), Bertec.StartupTypeAttribute]
 		public static void Init()
 		{
 			RuntimeConstants.UrpEnabled =

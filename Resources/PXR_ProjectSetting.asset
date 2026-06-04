@@ -20,16 +20,16 @@ MonoBehaviour:
   eyeTracking: 1
   eyetrackingCalibration: 0
   enableETFR: 0
-  latelatching: 0
+  latelatching: 1
   latelatchingDebug: 0
   enableSubsampled: 0
   bodyTracking: 0
   adaptiveResolution: 0
   stageMode: 0
-  videoSeeThrough: 0
+  videoSeeThrough: 1
   spatialAnchor: 0
   superResolution: 0
   normalSharpening: 0
-  qualitySharpening: 0
-  fixedFoveatedSharpening: 0
-  selfAdaptiveSharpening: 0
+  qualitySharpening: 1
+  fixedFoveatedSharpening: 1
+  selfAdaptiveSharpening: 1

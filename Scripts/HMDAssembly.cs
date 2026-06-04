@@ -15,14 +15,14 @@ namespace BertecHMD
 		[Bertec.PXRServiceBridgeInit]
 		internal static void PicoInit()
 		{
-			Debug.Log("HMDAssembly.PXRServiceBridgeInit");
+			Bertec.ExDebug.Log("HMDAssembly.PXRServiceBridgeInit");
 			PXRServiceBridge.Init();
 		}
 
 		[Bertec.FrameworkInit(Bertec.FrameworkInitType.AfterSubsystem)]
 		public static void Init()
 		{
-			Debug.Log("HMDAssembly.AfterSubsystems");
+			Bertec.ExDebug.Log("HMDAssembly.AfterSubsystems");
 			SystemAudioDeviceManagerImpl.Init();
 			SystemDisplayDeviceManagerImpl.Init();
 		}

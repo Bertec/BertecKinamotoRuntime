@@ -9,7 +9,7 @@ namespace BertecHMD
 	{
 		internal static void Init()
 		{
-			Debug.Log("HMD SystemAudioDeviceManagerImpl.Init");
+			Bertec.ExDebug.Log("HMD SystemAudioDeviceManagerImpl.Init");
 			Bertec.SystemAudioDeviceManager.managerInterface = new BertecHMD.SystemAudioDeviceManagerImpl();
 			Bertec.SystemAudioDeviceManager.interfaceRequiresMainThread = true;
 		}

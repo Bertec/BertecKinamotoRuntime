@@ -23,8 +23,25 @@ namespace Bertec
 		private CameraContainer_Impl _impl;
 		private static CameraContainer _instance = null;
 
+		[UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.BeforeSceneLoad)]
+		static public void SetInitialResolution()
+		{
+			int w = Bertec.ProtocolOptions.IntValue("screen-width", 0);
+			int h = Bertec.ProtocolOptions.IntValue("screen-height", 0);
+			int fs = Bertec.ProtocolOptions.IntValue("screen-fullscreen", 1);
+			if (w > 0 && h > 0)
+			{
+				Bertec.ExDebug.Log($"CameraContainer setting screen resolution to {w}x{h}, fullscreen={fs != 0}");
+				Screen.SetResolution(w, h, fs != 0);
+			}
+			else
+				Bertec.ExDebug.Log("CameraContainer no parms");
+		}
+
 		public void Awake()
 		{
+			SetInitialResolution();
+
 			_instance = this;
 
 			if (_mainCamera == null)
@@ -37,7 +54,7 @@ namespace Bertec
 			if (picoPVR != null)
 			{
 #if DEBUG
-				Debug.Log("CameraContainer using PVR projection; disabling main camera and setting PVR active");
+				Bertec.ExDebug.Log("CameraContainer using PVR projection; disabling main camera and setting PVR active");
 #endif
 				GameObject mc = MainCamera.gameObject;
 				if (!mc.transform.IsChildOf(picoPVR.transform))  // don't do this if the main camera is the child of the pvr (this should actually never happen now)
