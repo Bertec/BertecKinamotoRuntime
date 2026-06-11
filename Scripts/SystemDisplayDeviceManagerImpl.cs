@@ -21,6 +21,7 @@ namespace BertecHMD
 
 		private CameraClearFlags orignalMainCamClearFlags;   // initial states so can be reset when passthrough is toggled.
 		private Color orignalMainCamBackgroundColor;
+		private bool orignalMainCamAllowHDR;
 		private int _needPassChange = 0;
 		private bool _cameraBackgroundChangeSubscribed = false;
 		private static readonly Color PassthroughMainCamBackgroundColor = new Color(0f, 0f, 0f, 0f);
@@ -210,11 +211,16 @@ namespace BertecHMD
 							// Pico passthrough requires a solid clear with transparent black.
 							XRRigMainCamera.backgroundColor = PassthroughMainCamBackgroundColor;
 							XRRigMainCamera.clearFlags = CameraClearFlags.SolidColor;
+							// With the built-in RP an HDR camera renders via an R11G11B10 intermediate (no alpha
+							// channel), so the resolve writes opaque alpha into the eye buffer and the see-through
+							// feed is fully occluded (black). Render directly to RGBA8 while passthrough is active.
+							XRRigMainCamera.allowHDR = false;
 						}
 						else
 						{
 							XRRigMainCamera.clearFlags = orignalMainCamClearFlags;
 							XRRigMainCamera.backgroundColor = orignalMainCamBackgroundColor;
+							XRRigMainCamera.allowHDR = orignalMainCamAllowHDR;
 						}
 					}
 
@@ -259,6 +265,7 @@ namespace BertecHMD
 				{
 					XRRigMainCamera.clearFlags = orignalMainCamClearFlags;
 					XRRigMainCamera.backgroundColor = orignalMainCamBackgroundColor;
+					XRRigMainCamera.allowHDR = orignalMainCamAllowHDR;
 				}
 
 				if (AffectSceneOnPassthroughToggle)
@@ -425,6 +432,7 @@ namespace BertecHMD
 
 			orignalMainCamClearFlags = XRRigMainCamera.clearFlags;
 			orignalMainCamBackgroundColor = XRRigMainCamera.backgroundColor;
+			orignalMainCamAllowHDR = XRRigMainCamera.allowHDR;
 		}
 
 		private void EnsureMainCameraBackgroundTracking()

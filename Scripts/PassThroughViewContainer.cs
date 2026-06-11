@@ -114,7 +114,7 @@ namespace Bertec
 		public void OnDestroy()
 		{
 			Bertec.PassThroughViewContainer_Impl.RegisterPerspectiveCamerasWithActiveContainerCallback -= RegisterPerspectiveCamerasWithActiveContainer;
-			Bertec.PassThroughViewContainer_Impl.RegisterManagedCamerasCallback += HandleActivePassThroughViewContainerChanged;
+			Bertec.PassThroughViewContainer_Impl.RegisterManagedCamerasCallback -= HandleActivePassThroughViewContainerChanged;
 			Bertec.SystemDisplayDeviceManager.OnPassthroughChanged -= HandlePassthroughChanged;
 			RestoreManagedCameraCullingMasks();
 			ClearActiveInstance(this);

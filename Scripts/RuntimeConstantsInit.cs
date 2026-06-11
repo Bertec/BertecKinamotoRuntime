@@ -12,7 +12,7 @@ namespace Bertec
 		public static void Init()
 		{
 			RuntimeConstants.UrpEnabled =
-#if UNITY_URP
+#if UNITY_URP || BERTEC_URP
 			true;
 #else
 			false;
